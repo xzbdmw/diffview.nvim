@@ -108,7 +108,9 @@ function M.goto_file_edit()
     if target_tab then
       api.nvim_set_current_tabpage(target_tab)
       file.layout:restore_winopts()
-      vim.cmd("edit " .. vim.fn.fnameescape(file.absolute_path))
+      local path = vim.fn.expand("%:p")
+      local d_path = vim.fn.fnameescape(file.absolute_path)
+      if path ~= d_path then vim.cmd("edit " .. d_path) end
     else
       vim.cmd("tabnew")
       local temp_bufnr = api.nvim_get_current_buf()
