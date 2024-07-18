@@ -86,7 +86,7 @@ function File:init(opt)
     cursorbind = true,
     foldmethod = "diff",
     scrollopt = { "ver", "hor", "jump" },
-    foldcolumn = "1",
+    foldcolumn = "0",
     foldlevel = 0,
     foldenable = true,
     winhl = {
