@@ -13,13 +13,14 @@ local function render_file(comp, show_path, depth)
 
   comp:add_text(file.status .. " ", hl.get_git_hl(file.status))
 
-  if depth then
-    comp:add_text(string.rep(" ", depth * 2 + 2))
-  end
+  if depth then comp:add_text(string.rep(" ", depth * 2 + 2)) end
 
   local icon, icon_hl = hl.get_file_icon(file.basename, file.extension)
   comp:add_text(icon, icon_hl)
-  comp:add_text(file.basename, file.active and "DiffviewFilePanelSelected" or "DiffviewFilePanelFileName")
+  comp:add_text(
+    file.basename,
+    file.active and "DiffviewFilePanelSelected" or "DiffviewFilePanelFileName"
+  )
 
   if file.stats then
     if file.stats.additions then
@@ -39,9 +40,7 @@ local function render_file(comp, show_path, depth)
     comp:add_text(" !", "DiffviewFilePanelConflicts")
   end
 
-  if show_path then
-    comp:add_text(" " .. file.parent_path, "DiffviewFilePanelPath")
-  end
+  if show_path then comp:add_text(" " .. file.parent_path, "DiffviewFilePanelPath") end
 
   comp:ln()
 end
@@ -124,17 +123,13 @@ end
 ---@param listing_style "list"|"tree"
 ---@param comp RenderComponent
 local function render_files(listing_style, comp)
-  if listing_style == "list" then
-    return render_file_list(comp)
-  end
+  if listing_style == "list" then return render_file_list(comp) end
   render_file_tree(comp)
 end
 
 ---@param panel FilePanel
 return function(panel)
-  if not panel.render_data then
-    return
-  end
+  if not panel.render_data then return end
 
   panel.render_data:clear()
   local conf = config.get_config()
@@ -187,18 +182,46 @@ return function(panel)
     panel.components.staged.margin.comp:add_line()
   end
 
-  if panel.rev_pretty_name or (panel.path_args and #panel.path_args > 0) then
-    local extra_info = utils.vec_join({ panel.rev_pretty_name }, panel.path_args or {})
+  -- if panel.rev_pretty_name or (panel.path_args and #panel.path_args > 0) then
+  local extra_info = utils.vec_join({ panel.rev_pretty_name }, panel.path_args or {})
 
-    comp = panel.components.info.title.comp
-    comp:add_line("Showing changes for:", "DiffviewFilePanelTitle")
+  comp = panel.components.info.title.comp
+  comp:add_line("Showing changes for:", "DiffviewFilePanelTitle")
 
-    comp = panel.components.info.entries.comp
+  comp = panel.components.info.entries.comp
 
-    for _, arg in ipairs(extra_info) do
-      local relpath = pl:relative(arg, panel.adapter.ctx.toplevel)
-      if relpath == "" then relpath = "." end
-      comp:add_line(pl:truncate(relpath, width - 5), "DiffviewFilePanelPath")
+  for _, arg in ipairs(extra_info) do
+    local relpath = pl:relative(arg, panel.adapter.ctx.toplevel)
+    if relpath == "" then relpath = "." end
+    comp:add_line(pl:truncate(relpath, width - 5), "DiffviewFilePanelPath")
+  end
+
+  local function split_message(msg)
+    local width = width - 2
+    local lines = {}
+    local len = #msg
+    local i = 1
+
+    while i <= len do
+      local line = msg:sub(i, i + width - 1)
+      table.insert(lines, line)
+      i = i + width
+    end
+
+    return lines
+  end
+
+  if vim.g.Base_commit ~= "" then
+    local msgs = split_message(vim.g.Base_commit_msg)
+    for _, msg in ipairs(msgs) do
+      comp:add_line(msg, "CommitNCWinbar")
+    end
+  else
+    comp:add_line(vim.g.Last_commit:sub(1, 7) .. " (index)", "DiffviewFilePanelPath")
+    local msgs = split_message(vim.g.Last_commit_msg)
+    for _, msg in ipairs(msgs) do
+      comp:add_line(msg, "CommitWinbar")
     end
   end
+  -- end
 end
