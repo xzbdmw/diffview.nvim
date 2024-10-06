@@ -45,9 +45,7 @@ Diff1.create = async.void(function(self, pivot)
   assert(api.nvim_win_is_valid(pivot), "Layout creation requires a valid window pivot!")
 
   for _, win in ipairs(self.windows) do
-    if win.id ~= pivot then
-      win:close(true)
-    end
+    if win.id ~= pivot then win:close(true) end
   end
 
   api.nvim_win_call(pivot, function()
@@ -80,14 +78,10 @@ Diff1.use_entry = async.void(function(self, entry)
 
   self:set_file_b(layout.b.file)
 
-  if self:is_valid() then
-    await(self:open_files())
-  end
+  if self:is_valid() then await(self:open_files()) end
 end)
 
-function Diff1:get_main_win()
-  return self.b
-end
+function Diff1:get_main_win() return self.b end
 
 ---@param layout Diff3
 ---@return Diff3
@@ -152,7 +146,7 @@ function Diff1:to_diff4(layout)
       get_data = main.get_data,
       rev = Rev(RevType.STAGE, 1),
       nulled = false, -- FIXME
-    })
+    }),
   })
 end
 
@@ -161,9 +155,7 @@ end
 ---@param rev Rev
 ---@param status string Git status symbol.
 ---@param sym Diff1.WindowSymbol
-function Diff1.should_null(rev, status, sym)
-  return false
-end
+function Diff1.should_null(rev, status, sym) return false end
 
 M.Diff1 = Diff1
 return M

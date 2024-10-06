@@ -92,14 +92,10 @@ end
 ---@param path string
 ---@param rev Rev
 ---@return boolean -- True if the file was binary for the given rev, or it didn't exist.
-function VCSAdapter:is_binary(path, rev)
-  oop.abstract_stub()
-end
+function VCSAdapter:is_binary(path, rev) oop.abstract_stub() end
 
 ---Initialize completion parameters
-function VCSAdapter:init_completion()
-  oop.abstract_stub()
-end
+function VCSAdapter:init_completion() oop.abstract_stub() end
 
 ---@class RevCompletionSpec
 ---@field accept_range boolean
@@ -108,40 +104,27 @@ end
 ---@param arg_lead string
 ---@param opt? RevCompletionSpec
 ---@return string[]
-function VCSAdapter:rev_candidates(arg_lead, opt)
-  oop.abstract_stub()
-end
+function VCSAdapter:rev_candidates(arg_lead, opt) oop.abstract_stub() end
 
 ---@return Rev?
-function VCSAdapter:head_rev()
-  oop.abstract_stub()
-end
+function VCSAdapter:head_rev() oop.abstract_stub() end
 
 ---Get the hash for a file's blob in a given rev.
 ---@param path string
 ---@param rev_arg string?
 ---@return string?
-function VCSAdapter:file_blob_hash(path, rev_arg)
-  oop.abstract_stub()
-end
+function VCSAdapter:file_blob_hash(path, rev_arg) oop.abstract_stub() end
 
 ---@return string[] # path to binary for VCS command
-function VCSAdapter:get_command()
-  oop.abstract_stub()
-end
+function VCSAdapter:get_command() oop.abstract_stub() end
 
 ---@diagnostic enable: unused-local, missing-return
 
 ---@return string cmd The VCS binary.
-function VCSAdapter:bin()
-  return self:get_command()[1]
-end
+function VCSAdapter:bin() return self:get_command()[1] end
 
 ---@return string[] args The default VCS args.
-function VCSAdapter:args()
-  return utils.vec_slice(self:get_command(), 2)
-end
-
+function VCSAdapter:args() return utils.vec_slice(self:get_command(), 2) end
 
 ---Execute a VCS command synchronously.
 ---@param args string[]
@@ -158,15 +141,15 @@ function VCSAdapter:exec_sync(args, cwd_or_opt)
 
   if not self.class.bootstrap.ok then
     logger:error(
-      ("[VCSAdapter] Can't exec adapter command because bootstrap failed! Cmd: %s")
-      :format(table.concat(cmd, " "))
+      ("[VCSAdapter] Can't exec adapter command because bootstrap failed! Cmd: %s"):format(
+        table.concat(cmd, " ")
+      )
     )
     return
   end
 
   return utils.job(cmd, cwd_or_opt)
 end
-
 
 ---@param thread thread
 ---@param ok boolean
@@ -175,10 +158,7 @@ end
 ---@return any result
 function VCSAdapter:handle_co(thread, ok, result)
   if not ok then
-    local err_msg = utils.vec_join(
-      "Coroutine failed!",
-      debug.traceback(thread, result, 1)
-    )
+    local err_msg = utils.vec_join("Coroutine failed!", debug.traceback(thread, result, 1))
     utils.err(err_msg, true)
     logger:error(table.concat(err_msg, "\n"))
   end
@@ -192,15 +172,11 @@ end
 ---@param path string
 ---@param rev Rev?
 ---@return string[] args to show commit content
-function VCSAdapter:get_show_args(path, rev)
-  oop.abstract_stub()
-end
+function VCSAdapter:get_show_args(path, rev) oop.abstract_stub() end
 
 ---@param args string[]
 ---@return string[] args to show commit log message
-function VCSAdapter:get_log_args(args)
-  oop.abstract_stub()
-end
+function VCSAdapter:get_log_args(args) oop.abstract_stub() end
 
 ---@class vcs.MergeContext
 ---@field ours { hash: string, ref_names: string? }
@@ -208,24 +184,18 @@ end
 ---@field base { hash: string, ref_names: string? }
 
 ---@return vcs.MergeContext?
-function VCSAdapter:get_merge_context()
-  oop.abstract_stub()
-end
+function VCSAdapter:get_merge_context() oop.abstract_stub() end
 
 ---@param range? { [1]: integer, [2]: integer }
 ---@param paths string[]
 ---@param argo ArgObject
 ---@return string[] # Options to show file history
-function VCSAdapter:file_history_options(range, paths, argo)
-  oop.abstract_stub()
-end
+function VCSAdapter:file_history_options(range, paths, argo) oop.abstract_stub() end
 
 ---@param self VCSAdapter
 ---@param out_stream AsyncListStream
 ---@param opt vcs.adapter.FileHistoryWorkerSpec
-VCSAdapter.file_history_worker = async.void(function(self, out_stream, opt)
-  oop.abstract_stub()
-end)
+VCSAdapter.file_history_worker = async.void(function(self, out_stream, opt) oop.abstract_stub() end)
 
 ---@diagnostic enable: unused-local, missing-return
 
@@ -250,38 +220,28 @@ end
 ---@param left Rev
 ---@param right Rev
 ---@return string[]
-function VCSAdapter:rev_to_args(left, right)
-  oop.abstract_stub()
-end
+function VCSAdapter:rev_to_args(left, right) oop.abstract_stub() end
 
 ---Restore a file to the requested state
 ---@param path string # file to restore
 ---@param kind '"staged"'|'"working"'
 ---@param commit string
 ---@return string? Command to undo the restore
-function VCSAdapter:restore_file(path, kind, commit)
-  oop.abstract_stub()
-end
+function VCSAdapter:restore_file(path, kind, commit) oop.abstract_stub() end
 
 ---Add file(s)
 ---@param paths string[]
 ---@return boolean # add was successful
-function VCSAdapter:add_files(paths)
-  oop.abstract_stub()
-end
+function VCSAdapter:add_files(paths) oop.abstract_stub() end
 
 ---Reset file(s)
 ---@param paths string[]?
 ---@return boolean # reset was successful
-function VCSAdapter:reset_files(paths)
-  oop.abstract_stub()
-end
+function VCSAdapter:reset_files(paths) oop.abstract_stub() end
 
 ---@param argo ArgObject
 ---@return {left: string, right: string, options: string[]}
-function VCSAdapter:diffview_options(argo)
-  oop.abstract_stub()
-end
+function VCSAdapter:diffview_options(argo) oop.abstract_stub() end
 
 ---@class VCSAdapter.show_untracked.Opt
 ---@field dv_opt? DiffViewOptions
@@ -290,9 +250,7 @@ end
 ---Check whether untracked files should be listed.
 ---@param opt? VCSAdapter.show_untracked.Opt
 ---@return boolean
-function VCSAdapter:show_untracked(opt)
-  oop.abstract_stub()
-end
+function VCSAdapter:show_untracked(opt) oop.abstract_stub() end
 
 ---Restore file
 ---@param self VCSAdapter
@@ -301,16 +259,12 @@ end
 ---@param commit string?
 ---@return boolean success
 ---@return string? undo # If the adapter supports it: a command that will undo the restoration.
-VCSAdapter.file_restore = async.void(function(self, path, kind, commit)
-  oop.abstract_stub()
-end)
+VCSAdapter.file_restore = async.void(function(self, path, kind, commit) oop.abstract_stub() end)
 
 ---Update the index entry for a given file with the contents of an index buffer.
 ---@param file vcs.File
 ---@return boolean success
-function VCSAdapter:stage_index_file(file)
-  oop.abstract_stub()
-end
+function VCSAdapter:stage_index_file(file) oop.abstract_stub() end
 
 ---@param self VCSAdapter
 ---@param left Rev
@@ -319,18 +273,18 @@ end
 ---@param kind vcs.FileKind
 ---@param opt vcs.adapter.LayoutOpt
 ---@param callback function
-VCSAdapter.tracked_files = async.wrap(function(self, left, right, args, kind, opt, callback)
-  oop.abstract_stub()
-end)
+VCSAdapter.tracked_files = async.wrap(
+  function(self, left, right, args, kind, opt, callback) oop.abstract_stub() end
+)
 
 ---@param self VCSAdapter
 ---@param left Rev
 ---@param right Rev
 ---@param opt vcs.adapter.LayoutOpt
 ---@param callback? function
-VCSAdapter.untracked_files = async.wrap(function(self, left, right, opt, callback)
-  oop.abstract_stub()
-end)
+VCSAdapter.untracked_files = async.wrap(
+  function(self, left, right, opt, callback) oop.abstract_stub() end
+)
 
 ---@diagnostic enable: unused-local, missing-return
 
@@ -394,9 +348,7 @@ VCSAdapter.flags = {
 
 ---@param arg_lead string
 ---@return string[]
-function VCSAdapter:path_candidates(arg_lead)
-  return vim.fn.getcompletion(arg_lead, "file", 0)
-end
+function VCSAdapter:path_candidates(arg_lead) return vim.fn.getcompletion(arg_lead, "file", 0) end
 
 M.VCSAdapter = VCSAdapter
 return M

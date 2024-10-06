@@ -5,9 +5,7 @@ local fmt = string.format
 
 local M = {}
 
-function M.abstract_stub()
-  error("Unimplemented abstract method!")
-end
+function M.abstract_stub() error("Unimplemented abstract method!") end
 
 ---@generic T
 ---@param t T
@@ -22,9 +20,7 @@ end
 ---@param instance table
 ---@return function
 local function wrap_mt_func(func, instance)
-  return function(_, k)
-    return func(instance, k)
-  end
+  return function(_, k) return func(instance, k) end
 end
 
 local mt_func_names = {
@@ -66,9 +62,7 @@ local function new_instance(class, ...)
   return self
 end
 
-local function tostring(class)
-  return fmt("<class %s>", class.__name)
-end
+local function tostring(class) return fmt("<class %s>", class.__name) end
 
 ---@generic T : diffview.Object
 ---@generic U : diffview.Object
@@ -78,17 +72,14 @@ end
 function M.create_class(name, super_class)
   super_class = super_class or M.Object
 
-  return setmetatable(
-    {
-      __name = name,
-      super_class = super_class,
-    },
-    {
-      __index = super_class,
-      __call = new_instance,
-      __tostring = tostring,
-    }
-  )
+  return setmetatable({
+    __name = name,
+    super_class = super_class,
+  }, {
+    __index = super_class,
+    __call = new_instance,
+    __tostring = tostring,
+  })
 end
 
 local function classm_safeguard(x)
@@ -107,9 +98,7 @@ end
 local Object = M.create_class("Object")
 M.Object = Object
 
-function Object:__tostring()
-  return fmt("<a %s>", self.class.__name)
-end
+function Object:__tostring() return fmt("<a %s>", self.class.__name) end
 
 -- ### CLASS METHODS ###
 

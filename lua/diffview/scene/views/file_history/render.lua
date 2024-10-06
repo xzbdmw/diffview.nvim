@@ -35,7 +35,10 @@ local function render_files(comp, files)
         comp:add_text(file.parent_path .. "/", "DiffviewFilePanelPath")
       end
 
-      comp:add_text(file.basename, file.active and "DiffviewFilePanelSelected" or "DiffviewFilePanelFileName")
+      comp:add_text(
+        file.basename,
+        file.active and "DiffviewFilePanelSelected" or "DiffviewFilePanelFileName"
+      )
 
       if file.stats then
         comp:add_text(" " .. file.stats.additions, "DiffviewFilePanelInsertions")
@@ -60,32 +63,29 @@ local function render_entries(panel, parent, entries, updating)
   local max_len_stats = -1
 
   for _, entry in ipairs(entries) do
-    if #entry.files > max_num_files then
-      max_num_files = #entry.files
-    end
+    if #entry.files > max_num_files then max_num_files = #entry.files end
 
     if entry.stats then
       local adds = tostring(entry.stats.additions)
       local dels = tostring(entry.stats.deletions)
       local l = 7
       local w = l - (#adds + #dels)
-      if w < 1 then
-        l = (#adds + #dels) - ((#adds + #dels) % 2) + 2
-      end
+      if w < 1 then l = (#adds + #dels) - ((#adds + #dels) % 2) + 2 end
       max_len_stats = l > max_len_stats and l or max_len_stats
     end
   end
 
   for i, entry in ipairs(entries) do
-    if i > #parent or (updating and i > 128) then
-      break
-    end
+    if i > #parent or (updating and i > 128) then break end
 
     local entry_struct = parent[i]
     local comp = entry_struct.commit.comp
 
     if not entry.single_file then
-      comp:add_text((entry.folded and c.signs.fold_closed or c.signs.fold_open) .. " ", "CursorLineNr")
+      comp:add_text(
+        (entry.folded and c.signs.fold_closed or c.signs.fold_open) .. " ",
+        "CursorLineNr"
+      )
     end
 
     if entry.status then
@@ -130,12 +130,15 @@ local function render_entries(panel, parent, entries, updating)
       comp:add_text(" |", "DiffviewNonText")
     end
 
-    if entry.commit.hash then
-      comp:add_text(" " .. entry.commit.hash:sub(1, 8), "DiffviewHash")
-    end
+    if entry.commit.hash then comp:add_text(" " .. entry.commit.hash:sub(1, 8), "DiffviewHash") end
 
-    if (entry.commit --[[@as GitCommit ]]).reflog_selector then
-      comp:add_text((" %s"):format((entry.commit --[[@as GitCommit ]]).reflog_selector), "DiffviewReflogSelector")
+    if
+      (entry.commit --[[@as GitCommit ]]).reflog_selector
+    then
+      comp:add_text(
+        (" %s"):format((entry.commit --[[@as GitCommit ]]).reflog_selector),
+        "DiffviewReflogSelector"
+      )
     end
 
     if entry.commit.ref_names then
@@ -144,9 +147,7 @@ local function render_entries(panel, parent, entries, updating)
 
     local subject = utils.str_trunc(entry.commit.subject, 72)
 
-    if subject == "" then
-      subject = "[empty message]"
-    end
+    if subject == "" then subject = "[empty message]" end
 
     comp:add_text(
       " " .. subject,
@@ -158,7 +159,7 @@ local function render_entries(panel, parent, entries, updating)
       local date = (
         os.difftime(os.time(), entry.commit.time) > 60 * 60 * 24 * 30 * 3
           and entry.commit.iso_date
-          or entry.commit.rel_date
+        or entry.commit.rel_date
       )
       comp:add_text(" " .. entry.commit.author .. ", " .. date, "DiffviewFilePanelPath")
     end
@@ -177,10 +178,7 @@ local function prepare_panel_cache(panel)
   local c = {}
   cache[panel] = c
   c.root_path = panel.state.form == "column"
-      and pl:truncate(
-        pl:vim_fnamemodify(panel.adapter.ctx.toplevel, ":~"),
-        panel:infer_width() - 6
-      )
+      and pl:truncate(pl:vim_fnamemodify(panel.adapter.ctx.toplevel, ":~"), panel:infer_width() - 6)
     or pl:vim_fnamemodify(panel.adapter.ctx.toplevel, ":~")
   c.args = table.concat(panel.log_options.single_file.path_args, " ")
 end
@@ -188,16 +186,12 @@ end
 return {
   ---@param panel FileHistoryPanel
   file_history_panel = function(panel)
-    if not panel.render_data then
-      return
-    end
+    if not panel.render_data then return end
 
     perf:reset()
     panel.render_data:clear()
 
-    if not cache[panel] then
-      prepare_panel_cache(panel)
-    end
+    if not cache[panel] then prepare_panel_cache(panel) end
 
     local conf = config.get_config()
     local comp = panel.components.header.comp
@@ -253,9 +247,7 @@ return {
     comp:add_text("File History ", "DiffviewFilePanelTitle")
     comp:add_text("(" .. #panel.entries .. ")", "DiffviewFilePanelCounter")
 
-    if panel.updating then
-      comp:add_text(" (Updating...)", "DiffviewDim1")
-    end
+    if panel.updating then comp:add_text(" (Updating...)", "DiffviewDim1") end
 
     comp:ln()
     perf:lap("header")
@@ -270,9 +262,7 @@ return {
 
   ---@param panel FHOptionPanel
   fh_option_panel = function(panel)
-    if not panel.render_data then
-      return
-    end
+    if not panel.render_data then return end
 
     panel.render_data:clear()
 
@@ -312,7 +302,5 @@ return {
       comp:ln()
     end
   end,
-  clear_cache = function(panel)
-    cache[panel] = nil
-  end,
+  clear_cache = function(panel) cache[panel] = nil end,
 }

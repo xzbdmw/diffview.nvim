@@ -50,14 +50,10 @@ Diff2.use_entry = async.void(function(self, entry)
   self:set_file_a(layout.a.file)
   self:set_file_b(layout.b.file)
 
-  if self:is_valid() then
-    await(self:open_files())
-  end
+  if self:is_valid() then await(self:open_files()) end
 end)
 
-function Diff2:get_main_win()
-  return self.b
-end
+function Diff2:get_main_win() return self.b end
 
 ---@override
 ---@param rev Rev
@@ -68,14 +64,10 @@ function Diff2.should_null(rev, status, sym)
 
   if rev.type == RevType.LOCAL then
     return status == "D"
-
   elseif rev.type == RevType.COMMIT then
-    if sym == "a" then
-      return vim.tbl_contains({ "?", "A" }, status)
-    end
+    if sym == "a" then return vim.tbl_contains({ "?", "A" }, status) end
 
     return false
-
   elseif rev.type == RevType.STAGE then
     if sym == "a" then
       return vim.tbl_contains({ "?", "A" }, status)

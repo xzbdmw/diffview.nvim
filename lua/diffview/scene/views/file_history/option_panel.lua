@@ -65,42 +65,36 @@ function FHOptionPanel:init(parent)
       self:_set_option(option_name, not cur_value)
       self:render()
       self:redraw()
-
     elseif self.flags.options[option_name] then
       local o = self.flags.options[option_name]
 
       if o.select then
         vim.ui.select(o.select, {
           prompt = o:render_prompt(),
-          format_item = function(item)
-            return item == "" and "<unset>" or item
-          end,
+          format_item = function(item) return item == "" and "<unset>" or item end,
         }, function(choice)
-          if choice then
-            self:_set_option(option_name, choice)
-          end
+          if choice then self:_set_option(option_name, choice) end
 
           self:render()
           self:redraw()
         end)
-
       else
         local completion = type(o.completion) == "function" and o.completion(self) or o.completion
 
         utils.input(o:render_prompt(), {
           default = o:render_default(cur_value),
-          completion = type(completion) == "function" and function(_, cmd_line, cur_pos)
-            ---@cast completion fun(ctx: CmdLineContext): string[]
-            local ctx = arg_parser.scan(cmd_line, { cur_pos = cur_pos })
-            return arg_parser.process_candidates(completion(ctx), ctx, true)
-          end or completion,
+          completion = type(completion) == "function"
+              and function(_, cmd_line, cur_pos)
+                ---@cast completion fun(ctx: CmdLineContext): string[]
+                local ctx = arg_parser.scan(cmd_line, { cur_pos = cur_pos })
+                return arg_parser.process_candidates(completion(ctx), ctx, true)
+              end
+            or completion,
           callback = function(response)
             if response ~= "__INPUT_CANCELLED__" then
               local values = response == nil and { "" } or arg_parser.scan(response).args
 
-              if o.transform then
-                values = o:transform(values)
-              end
+              if o.transform then values = o:transform(values) end
 
               if not o.expect_list then
                 ---@cast values string
@@ -119,24 +113,18 @@ function FHOptionPanel:init(parent)
   end)
 
   self:on_autocmd("BufNew", {
-    callback = function()
-      self:setup_buffer()
-    end,
+    callback = function() self:setup_buffer() end,
   })
 
   self:on_autocmd("WinClosed", {
     callback = function()
       if not vim.deep_equal(self.option_state, self.parent:get_log_options()) then
-        vim.schedule(function ()
+        vim.schedule(function()
           self.option_state = nil
           self.winid = nil
           self.parent:update_entries(function(_, status)
-            if status >= JobStatus.ERROR then
-              return
-            end
-            if not self.parent:cur_file() then
-              self.parent.parent:next_item()
-            end
+            if status >= JobStatus.ERROR then return end
+            if not self.parent:cur_file() then self.parent.parent:next_item() end
           end)
         end)
       end
@@ -155,9 +143,7 @@ function FHOptionPanel:open()
   FHOptionPanel.super_class.open(self)
   self.option_state = utils.tbl_deep_clone(self.parent:get_log_options())
 
-  api.nvim_win_call(self.winid, function()
-    vim.cmd("norm! zb")
-  end)
+  api.nvim_win_call(self.winid, function() vim.cmd("norm! zb") end)
 end
 
 function FHOptionPanel:setup_buffer()
@@ -174,9 +160,7 @@ function FHOptionPanel:setup_buffer()
       vim.keymap.set(
         "n",
         v.keymap,
-        function()
-          self.emitter:emit("set_option", option_name)
-        end,
+        function() self.emitter:emit("set_option", option_name) end,
         { silent = true, buffer = self.bufid }
       )
     end
@@ -187,10 +171,10 @@ function FHOptionPanel:update_components()
   local switch_schema = {}
   local option_schema = {}
   for _, option in ipairs(self.flags.switches) do
-    table.insert(switch_schema, { name = "switch", context = { option = option, }, })
+    table.insert(switch_schema, { name = "switch", context = { option = option } })
   end
   for _, option in ipairs(self.flags.options) do
-    table.insert(option_schema, { name = "option", context = { option = option }, })
+    table.insert(option_schema, { name = "option", context = { option = option } })
   end
 
   ---@type CompStruct
@@ -211,22 +195,16 @@ end
 ---Get the file entry under the cursor.
 ---@return FlagOption?
 function FHOptionPanel:get_item_at_cursor()
-  if not (self:is_open() and self:buf_loaded()) then
-    return
-  end
+  if not (self:is_open() and self:buf_loaded()) then return end
 
   local cursor = api.nvim_win_get_cursor(self.winid)
   local line = cursor[1]
 
   local comp = self.components.comp:get_comp_on_line(line)
-  if comp and (comp.name == "switch" or comp.name == "option") then
-    return comp.context.option
-  end
+  if comp and (comp.name == "switch" or comp.name == "option") then return comp.context.option end
 end
 
-function FHOptionPanel:render()
-  panel_renderer.fh_option_panel(self)
-end
+function FHOptionPanel:render() panel_renderer.fh_option_panel(self) end
 
 M.FHOptionPanel = FHOptionPanel
 return M

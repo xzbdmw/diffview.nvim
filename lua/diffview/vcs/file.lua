@@ -80,22 +80,23 @@ function File:init(opt)
   self.active = false
   self.ready = false
 
-  self.winopts = opt.winopts or {
-    diff = true,
-    scrollbind = true,
-    cursorbind = true,
-    foldmethod = "diff",
-    scrollopt = { "ver", "hor", "jump" },
-    foldcolumn = "0",
-    foldlevel = 0,
-    foldenable = true,
-    winhl = {
-      "DiffAdd:DiffviewDiffAdd",
-      "DiffDelete:DiffviewDiffDelete",
-      "DiffChange:DiffviewDiffChange",
-      "DiffText:DiffviewDiffText",
-    },
-  }
+  self.winopts = opt.winopts
+    or {
+      diff = true,
+      scrollbind = true,
+      cursorbind = true,
+      foldmethod = "diff",
+      scrollopt = { "ver", "hor", "jump" },
+      foldcolumn = "0",
+      foldlevel = 0,
+      foldenable = true,
+      winhl = {
+        "DiffAdd:DiffviewDiffAdd",
+        "DiffDelete:DiffviewDiffDelete",
+        "DiffChange:DiffviewDiffChange",
+        "DiffText:DiffviewDiffText",
+      },
+    }
 
   -- Set winbar info
   if self.rev then
@@ -143,9 +144,10 @@ function File:post_buf_created()
   if view then
     view.emitter:on("diff_buf_win_enter", function(_, bufnr, winid, ctx)
       if bufnr == self.bufnr then
-        api.nvim_win_call(winid, function()
-          DiffviewGlobal.emitter:emit("diff_buf_read", self.bufnr, ctx)
-        end)
+        api.nvim_win_call(
+          winid,
+          function() DiffviewGlobal.emitter:emit("diff_buf_read", self.bufnr, ctx) end
+        )
 
         return true
       end
@@ -273,9 +275,7 @@ File.create_buffer = async.wrap(function(self, callback)
     api.nvim_create_autocmd("BufWriteCmd", {
       buffer = self.bufnr,
       nested = true,
-      callback = function()
-        self.adapter:stage_index_file(self)
-      end,
+      callback = function() self.adapter:stage_index_file(self) end,
     })
   end
 
@@ -288,9 +288,7 @@ File.create_buffer = async.wrap(function(self, callback)
   vim.bo[self.bufnr].modifiable = true
   api.nvim_buf_set_lines(self.bufnr, 0, -1, false, lines)
 
-  api.nvim_buf_call(self.bufnr, function()
-    vim.cmd("filetype detect")
-  end)
+  api.nvim_buf_call(self.bufnr, function() vim.cmd("filetype detect") end)
 
   vim.bo[self.bufnr].modifiable = last_modifiable
   vim.bo[self.bufnr].modified = last_modified
@@ -299,9 +297,7 @@ File.create_buffer = async.wrap(function(self, callback)
   ---@diagnostic enable: invisible
 end)
 
-function File:is_valid()
-  return self.bufnr and api.nvim_buf_is_valid(self.bufnr)
-end
+function File:is_valid() return self.bufnr and api.nvim_buf_is_valid(self.bufnr) end
 
 ---@param t1 table
 ---@param t2 table
@@ -339,9 +335,7 @@ function File:attach_buffer(force, opt)
     local cur_state = File.attached[self.bufnr] or {}
     local state = prepare_attach_opt(cur_state, opt or {})
 
-    if opt then
-      new_opt = not vim.deep_equal(cur_state or {}, opt)
-    end
+    if opt then new_opt = not vim.deep_equal(cur_state or {}, opt) end
 
     if force or new_opt or not cur_state then
       local conf = config.get_config()
@@ -351,7 +345,8 @@ function File:attach_buffer(force, opt)
       local default_map_opt = { silent = true, nowait = true, buffer = self.bufnr }
 
       for _, mapping in ipairs(state.keymaps) do
-        local map_opt = vim.tbl_extend("force", default_map_opt, mapping[4] or {}, { buffer = self.bufnr })
+        local map_opt =
+          vim.tbl_extend("force", default_map_opt, mapping[4] or {}, { buffer = self.bufnr })
         vim.keymap.set(mapping[1], mapping[2], mapping[3], map_opt)
       end
 
@@ -380,7 +375,9 @@ function File:detach_buffer()
         if type(lhs) == "number" then
           local modes = type(mapping[1]) == "table" and mapping[1] or { mapping[1] }
           for _, mode in ipairs(modes) do
-            pcall(api.nvim_buf_del_keymap, self.bufnr, mode, mapping[2])
+            if mapping[2] ~= "<cr>" then
+              pcall(api.nvim_buf_del_keymap, self.bufnr, mode, mapping[2])
+            end
           end
         else
           pcall(api.nvim_buf_del_keymap, self.bufnr, "n", lhs)
@@ -406,18 +403,14 @@ function File:dispose_buffer()
   if self.bufnr and api.nvim_buf_is_loaded(self.bufnr) then
     self:detach_buffer()
 
-    if not lib.is_buf_in_use(self.bufnr, { self }) then
-      File.safe_delete_buf(self.bufnr)
-    end
+    if not lib.is_buf_in_use(self.bufnr, { self }) then File.safe_delete_buf(self.bufnr) end
 
     self.bufnr = nil
   end
 end
 
 function File.safe_delete_buf(bufnr)
-  if not bufnr or bufnr == File.NULL_FILE.bufnr or not api.nvim_buf_is_loaded(bufnr) then
-    return
-  end
+  if not bufnr or bufnr == File.NULL_FILE.bufnr or not api.nvim_buf_is_loaded(bufnr) then return end
 
   for _, winid in ipairs(utils.win_find_buf(bufnr, 0)) do
     File.load_null_buffer(winid)

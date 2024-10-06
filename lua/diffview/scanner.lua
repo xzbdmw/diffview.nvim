@@ -20,17 +20,11 @@ end
 ---Peek the nth line after the current line.
 ---@param n? integer # (default: 1)
 ---@return string?
-function Scanner:peek_line(n)
-  return self.lines[self.line_idx + math.max(1, n or 1)]
-end
+function Scanner:peek_line(n) return self.lines[self.line_idx + math.max(1, n or 1)] end
 
-function Scanner:cur_line()
-  return self.lines[self.line_idx]
-end
+function Scanner:cur_line() return self.lines[self.line_idx] end
 
-function Scanner:cur_line_idx()
-  return self.line_idx
-end
+function Scanner:cur_line_idx() return self.line_idx end
 
 ---Advance the scanner to the next line.
 ---@return string?

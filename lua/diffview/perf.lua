@@ -47,9 +47,7 @@ function PerfTimer:time()
 end
 
 function PerfTimer:__tostring()
-  if not self.final_time then
-    self:time()
-  end
+  if not self.final_time then self:time() end
 
   if #self.laps == 0 then
     return string.format(
@@ -72,7 +70,8 @@ function PerfTimer:__tostring()
       last = lap[2]
     end
 
-    return s .. string.format("== %s %.3f ms", utils.str_right_pad("FINAL TIME", 36), self.final_time)
+    return s
+      .. string.format("== %s %.3f ms", utils.str_right_pad("FINAL TIME", 36), self.final_time)
   end
 end
 

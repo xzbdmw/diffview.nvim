@@ -36,9 +36,7 @@ end
 ---@param rev_arg string
 ---@param adapter VCSAdapter
 ---@return Commit?
-function Commit.from_rev_arg(rev_arg, adapter)
-  oop.abstract_stub()
-end
+function Commit.from_rev_arg(rev_arg, adapter) oop.abstract_stub() end
 
 ---@diagnostic enable: unused-local, missing-return
 
@@ -55,9 +53,7 @@ function Commit.parse_time_offset(iso_date)
   local sign, h, m = vim.trim(iso_date):match("([+-])(%d%d):?(%d%d)$")
   local offset = tonumber(h) * 60 * 60 + tonumber(m) * 60
 
-  if sign == "-" then
-    offset = -offset
-  end
+  if sign == "-" then offset = -offset end
 
   return offset
 end

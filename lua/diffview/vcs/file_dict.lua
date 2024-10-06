@@ -29,9 +29,7 @@ function FileDict:__index(k)
     local offset = 0
 
     for _, set in ipairs(self.sets) do
-      if k - offset <= #set then
-        return set[k - offset]
-      end
+      if k - offset <= #set then return set[k - offset] end
 
       offset = offset + #set
     end
@@ -48,7 +46,9 @@ end
 
 function FileDict:len()
   local l = 0
-  for _, set in ipairs(self.sets) do l = l + #set end
+  for _, set in ipairs(self.sets) do
+    l = l + #set
+  end
 
   return l
 end
@@ -61,9 +61,7 @@ function FileDict:iter()
   return function()
     i = i + 1
 
-    if i <= n then
-      return i, self[i]
-    end
+    if i <= n then return i, self[i] end
   end
 end
 

@@ -4,10 +4,10 @@ local M = {}
 
 ---@enum RevType
 local RevType = oop.enum({
-  LOCAL   = 1,
-  COMMIT  = 2,
-  STAGE   = 3,
-  CUSTOM  = 4,
+  LOCAL = 1,
+  COMMIT = 2,
+  STAGE = 3,
+  CUSTOM = 4,
 })
 
 ---@alias RevRange { first: Rev, last: Rev }
@@ -33,10 +33,7 @@ function Rev:init(rev_type, revision, track_head)
   if t == "string" then
     assert(revision ~= "", "'revision' cannot be an empty string!")
   elseif t == "number" then
-    assert(
-      revision >= 0 and revision <= 3,
-      "'revision' must be a valid stage number ([0-3])!"
-    )
+    assert(revision >= 0 and revision <= 3, "'revision' must be a valid stage number ([0-3])!")
   end
 
   t = type(track_head)
@@ -78,34 +75,24 @@ function Rev.to_range(rev_from, rev_to) oop.abstract_stub() end
 ---@param name string
 ---@param adapter? VCSAdapter
 ---@return Rev?
-function Rev.from_name(name, adapter)
-  oop.abstract_stub()
-end
+function Rev.from_name(name, adapter) oop.abstract_stub() end
 
 ---@param adapter VCSAdapter
 ---@return Rev?
-function Rev.earliest_commit(adapter)
-  oop.abstract_stub()
-end
+function Rev.earliest_commit(adapter) oop.abstract_stub() end
 
 ---Create a new commit rev with the special empty tree SHA.
 ---@return Rev
-function Rev.new_null_tree()
-  oop.abstract_stub()
-end
+function Rev.new_null_tree() oop.abstract_stub() end
 
 ---Determine if this rev is currently the head.
 ---@param adapter VCSAdapter
 ---@return boolean?
-function Rev:is_head(adapter)
-  oop.abstract_stub()
-end
+function Rev:is_head(adapter) oop.abstract_stub() end
 
 ---@param abbrev_len? integer
 ---@return string
-function Rev:object_name(abbrev_len)
-  oop.abstract_stub()
-end
+function Rev:object_name(abbrev_len) oop.abstract_stub() end
 
 ---@diagnostic enable: unused-local, missing-return
 
@@ -113,9 +100,7 @@ end
 ---@param length integer|nil
 ---@return string|nil
 function Rev:abbrev(length)
-  if self.commit then
-    return self.commit:sub(1, length or 7)
-  end
+  if self.commit then return self.commit:sub(1, length or 7) end
   return nil
 end
 

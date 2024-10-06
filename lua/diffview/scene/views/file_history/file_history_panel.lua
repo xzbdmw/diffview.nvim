@@ -104,9 +104,7 @@ function FileHistoryPanel:init(opt)
   }
 
   self:on_autocmd("BufNew", {
-    callback = function()
-      self:setup_buffer()
-    end,
+    callback = function() self:setup_buffer() end,
   })
 end
 
@@ -134,9 +132,7 @@ FileHistoryPanel.destroy = async.sync_void(function(self)
   self.option_panel = nil
   self.render_data:destroy()
 
-  if self.components then
-    renderer.destroy_comp_struct(self.components)
-  end
+  if self.components then renderer.destroy_comp_struct(self.components) end
 
   FileHistoryPanel.super_class.destroy(self)
 end)
@@ -159,15 +155,11 @@ end
 
 function FileHistoryPanel:update_components()
   self.render_data:destroy()
-  if self.components then
-    renderer.destroy_comp_struct(self.components)
-  end
+  if self.components then renderer.destroy_comp_struct(self.components) end
 
   local entry_schema = { name = "entries" }
   for i, entry in ipairs(utils.vec_slice(self.entries)) do
-    if self.updating and i > 128 then
-      break
-    end
+    if self.updating and i > 128 then break end
     table.insert(entry_schema, {
       name = "entry",
       context = entry,
@@ -211,20 +203,17 @@ FileHistoryPanel.update_entries = async.wrap(function(self, callback)
 
   self:sync()
 
-  local render = debounce.throttle_render(
-    15,
-    function()
-      if self.shutdown:check() then return end
-      if not self:cur_file() then
-        self:update_components()
-        self.parent:next_item()
-      else
-        self:sync()
-      end
-
-      vim.cmd("redraw")
+  local render = debounce.throttle_render(15, function()
+    if self.shutdown:check() then return end
+    if not self:cur_file() then
+      self:update_components()
+      self.parent:next_item()
+    else
+      self:sync()
     end
-  )
+
+    vim.cmd("redraw")
+  end)
 
   local ret = {}
 
@@ -253,11 +242,9 @@ FileHistoryPanel.update_entries = async.wrap(function(self, callback)
     elseif status == JobStatus.PROGRESS then
       ---@cast entry -?
       local was_empty = #self.entries == 0
-      self.entries[#self.entries+1] = entry
+      self.entries[#self.entries + 1] = entry
 
-      if was_empty then
-        self.single_file = self.entries[1].single_file
-      end
+      if was_empty then self.single_file = self.entries[1].single_file end
 
       render()
     else
@@ -309,9 +296,7 @@ end
 function FileHistoryPanel:find_entry(file)
   for _, entry in ipairs(self.entries) do
     for _, f in ipairs(entry.files) do
-      if f == file then
-        return entry
-      end
+      if f == file then return entry end
     end
   end
 end
@@ -328,9 +313,7 @@ function FileHistoryPanel:get_item_at_cursor()
   if comp and (comp.name == "commit" or comp.name == "files") then
     local entry = comp.parent.context --[[@as table ]]
 
-    if comp.name == "files" then
-      return entry.files[line - comp.lstart]
-    end
+    if comp.name == "files" then return entry.files[line - comp.lstart] end
 
     return entry
   end
@@ -351,15 +334,11 @@ end
 
 ---@param new_item FileHistoryPanel.CurItem
 function FileHistoryPanel:set_cur_item(new_item)
-  if self.cur_item[2] then
-    self.cur_item[2]:set_active(false)
-  end
+  if self.cur_item[2] then self.cur_item[2]:set_active(false) end
 
   self.cur_item = new_item
 
-  if self.cur_item and self.cur_item[2] then
-    self.cur_item[2]:set_active(true)
-  end
+  if self.cur_item and self.cur_item[2] then self.cur_item[2]:set_active(true) end
 end
 
 function FileHistoryPanel:set_entry_from_file(item)
@@ -370,15 +349,11 @@ function FileHistoryPanel:set_entry_from_file(item)
   else
     local entry = self:find_entry(file)
 
-    if entry then
-      self:set_cur_item({ entry, file })
-    end
+    if entry then self:set_cur_item({ entry, file }) end
   end
 end
 
-function FileHistoryPanel:cur_file()
-  return self.cur_item[2]
-end
+function FileHistoryPanel:cur_file() return self.cur_item[2] end
 
 ---@private
 ---@param entry_idx integer
@@ -428,9 +403,7 @@ function FileHistoryPanel:set_file_by_offset(offset)
       local next_entry, next_file = self:_get_entry_by_file_offset(entry_idx, file_idx, offset)
       self:set_cur_item({ next_entry, next_file })
 
-      if next_entry ~= entry then
-        self:set_entry_fold(entry, false)
-      end
+      if next_entry ~= entry then self:set_entry_fold(entry, false) end
 
       return self.cur_item[2]
     end
@@ -440,13 +413,9 @@ function FileHistoryPanel:set_file_by_offset(offset)
   end
 end
 
-function FileHistoryPanel:prev_file()
-  return self:set_file_by_offset(-vim.v.count1)
-end
+function FileHistoryPanel:prev_file() return self:set_file_by_offset(-vim.v.count1) end
 
-function FileHistoryPanel:next_file()
-  return self:set_file_by_offset(vim.v.count1)
-end
+function FileHistoryPanel:next_file() return self:set_file_by_offset(vim.v.count1) end
 
 ---@param item LogEntry|FileEntry
 function FileHistoryPanel:highlight_item(item)
@@ -527,9 +496,7 @@ function FileHistoryPanel:set_entry_fold(entry, open)
 end
 
 ---@param entry LogEntry
-function FileHistoryPanel:toggle_entry_fold(entry)
-  self:set_entry_fold(entry, entry.folded)
-end
+function FileHistoryPanel:toggle_entry_fold(entry) self:set_entry_fold(entry, entry.folded) end
 
 function FileHistoryPanel:render()
   perf_render:reset()

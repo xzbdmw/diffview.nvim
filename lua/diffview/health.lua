@@ -35,13 +35,13 @@ local function lualib_available(name)
 end
 
 function M.check()
-  if vim.fn.has("nvim-0.7") == 0 then
-    health.error("Diffview.nvim requires Neovim 0.7.0+")
-  end
+  if vim.fn.has("nvim-0.7") == 0 then health.error("Diffview.nvim requires Neovim 0.7.0+") end
 
   -- LuaJIT
   if not _G.jit then
-    health.error("Not running on LuaJIT! Non-JIT Lua runtimes are not officially supported by the plugin. Mileage may vary.")
+    health.error(
+      "Not running on LuaJIT! Non-JIT Lua runtimes are not officially supported by the plugin. Mileage may vary."
+    )
   end
 
   health.start("Checking plugin dependencies")
@@ -62,10 +62,12 @@ function M.check()
   end
 
   health.start("Checking VCS tools")
-
-  ;(function()
+;
+  (function()
     if missing_essential then
-      health.warn("Cannot perform checks on external dependencies without all essential plugin dependencies installed!")
+      health.warn(
+        "Cannot perform checks on external dependencies without all essential plugin dependencies installed!"
+      )
       return
     end
 
@@ -81,9 +83,7 @@ function M.check()
       local bs = kind.class.bootstrap
       if not bs.done then kind.class.run_bootstrap() end
 
-      if bs.version_string then
-        health.ok(fmt("%s found.", kind.name))
-      end
+      if bs.version_string then health.ok(fmt("%s found.", kind.name)) end
 
       if bs.ok then
         health.ok(fmt("%s is up-to-date. (%s)", kind.name, bs.version_string))
@@ -93,9 +93,7 @@ function M.check()
       end
     end
 
-    if not has_valid_adapter then
-      health.error("No valid VCS tool was found!")
-    end
+    if not has_valid_adapter then health.error("No valid VCS tool was found!") end
   end)()
 end
 

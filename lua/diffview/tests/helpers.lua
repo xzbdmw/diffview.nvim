@@ -23,9 +23,7 @@ function M.async_test(test_func)
     local ok, err = pawait(afunc(...))
     await(async.scheduler())
 
-    if not ok then
-      error(err)
-    end
+    if not ok then error(err) end
   end
 end
 

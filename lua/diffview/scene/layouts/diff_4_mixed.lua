@@ -17,9 +17,7 @@ local Diff4Mixed = oop.create_class("Diff4Mixed", Diff4)
 
 Diff4Mixed.name = "diff4_mixed"
 
-function Diff4Mixed:init(opt)
-  self:super(opt)
-end
+function Diff4Mixed:init(opt) self:super(opt) end
 
 ---@override
 ---@param self Diff4Mixed
@@ -32,9 +30,7 @@ Diff4Mixed.create = async.void(function(self, pivot)
   assert(api.nvim_win_is_valid(pivot), "Layout creation requires a valid window pivot!")
 
   for _, win in ipairs(self.windows) do
-    if win.id ~= pivot then
-      win:close(true)
-    end
+    if win.id ~= pivot then win:close(true) end
   end
 
   api.nvim_win_call(pivot, function()

@@ -32,12 +32,13 @@ function StandardView:init(opt)
   self.nulled = utils.sate(opt.nulled, false)
   self.panel = opt.panel or Panel()
   self.layouts = opt.layouts or {}
-  self.winopts = opt.winopts or {
-    diff1 = { a = {} },
-    diff2 = { a = {}, b = {} },
-    diff3 = { a = {}, b = {}, c = {} },
-    diff4 = { a = {}, b = {}, c = {}, d = {} },
-  }
+  self.winopts = opt.winopts
+    or {
+      diff1 = { a = {} },
+      diff2 = { a = {}, b = {} },
+      diff3 = { a = {}, b = {}, c = {} },
+      diff4 = { a = {}, b = {}, c = {}, d = {} },
+    }
 
   self.emitter:on("post_layout", utils.bind(self.post_layout, self))
 end
@@ -57,9 +58,7 @@ function StandardView:init_layout()
   self.cur_layout:create()
   vim.t[self.tabpage].diffview_view_initialized = true
 
-  if first_init then
-    api.nvim_win_close(curwin, false)
-  end
+  if first_init then api.nvim_win_close(curwin, false) end
 
   self.panel:focus()
   self.emitter:emit("post_layout")
@@ -106,15 +105,11 @@ function StandardView:use_layout(layout)
 
     -- If the panel was the only window before closing, then a temp window was
     -- already created by `Panel:close()`.
-    if not was_only_win then
-      vim.cmd("1windo aboveleft vsp")
-    end
+    if not was_only_win then vim.cmd("1windo aboveleft vsp") end
 
     local pivot = api.nvim_get_current_win()
 
-    if was_open then
-      self.panel:open()
-    end
+    if was_open then self.panel:open() end
 
     return pivot
   end
@@ -137,11 +132,8 @@ StandardView.use_entry = async.void(function(self, entry)
 
   for _, sym in ipairs({ "a", "b", "c", "d" }) do
     if entry.layout[sym] then
-      entry.layout[sym].file.winopts = vim.tbl_extend(
-        "force",
-        entry.layout[sym].file.winopts,
-        self.winopts[layout_key][sym] or {}
-      )
+      entry.layout[sym].file.winopts =
+        vim.tbl_extend("force", entry.layout[sym].file.winopts, self.winopts[layout_key][sym] or {})
     end
   end
 
@@ -167,13 +159,9 @@ StandardView.use_entry = async.void(function(self, entry)
     -- Wait for files to be created + opened
     await(future)
 
-    if not vim.o.equalalways then
-      vim.cmd("wincmd =")
-    end
+    if not vim.o.equalalways then vim.cmd("wincmd =") end
 
-    if self.cur_layout:is_focused() then
-      self.cur_layout:get_main_win():focus()
-    end
+    if self.cur_layout:is_focused() then self.cur_layout:get_main_win():focus() end
   end
 end)
 

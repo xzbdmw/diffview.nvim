@@ -1,6 +1,6 @@
 local oop = require("diffview.oop")
-local Rev = require('diffview.vcs.rev').Rev
-local RevType = require('diffview.vcs.rev').RevType
+local Rev = require("diffview.vcs.rev").Rev
+local RevType = require("diffview.vcs.rev").RevType
 
 local M = {}
 
@@ -24,10 +24,7 @@ function GitRev:init(rev_type, revision, track_head)
   if t == "string" then
     assert(revision ~= "", "'revision' cannot be an empty string!")
   elseif t == "number" then
-    assert(
-      revision >= 0 and revision <= 3,
-      "'revision' must be a valid stage number ([0-3])!"
-    )
+    assert(revision >= 0 and revision <= 3, "'revision' must be a valid stage number ([0-3])!")
   end
 
   t = type(track_head)
@@ -44,9 +41,7 @@ function GitRev:init(rev_type, revision, track_head)
     self.stage = revision
   end
 
-  if self.type == RevType.STAGE and not self.stage then
-    self.stage = 0
-  end
+  if self.type == RevType.STAGE and not self.stage then self.stage = 0 end
 end
 
 ---@param rev_from GitRev|string
@@ -84,9 +79,7 @@ end
 function GitRev.from_name(name, adapter)
   local out, code = adapter:exec_sync({ "rev-parse", "--revs-only", name }, adapter.ctx.toplevel)
 
-  if code ~= 0 then
-    return
-  end
+  if code ~= 0 then return end
 
   return GitRev(RevType.COMMIT, out[1]:gsub("^%^", ""))
 end
@@ -95,35 +88,30 @@ end
 ---@return Rev?
 function GitRev.earliest_commit(adapter)
   local out, code = adapter:exec_sync({
-    "rev-list", "--max-parents=0", "--first-parent", "HEAD"
+    "rev-list",
+    "--max-parents=0",
+    "--first-parent",
+    "HEAD",
   }, adapter.ctx.toplevel)
 
-  if code ~= 0 then
-    return
-  end
+  if code ~= 0 then return end
 
   return GitRev(RevType.COMMIT, ({ out[1]:gsub("^%^", "") })[1])
 end
 
 ---Create a new commit rev with the special empty tree SHA.
 ---@return Rev
-function GitRev.new_null_tree()
-  return GitRev(RevType.COMMIT, GitRev.NULL_TREE_SHA)
-end
+function GitRev.new_null_tree() return GitRev(RevType.COMMIT, GitRev.NULL_TREE_SHA) end
 
 ---Determine if this rev is currently the head.
 ---@param adapter GitAdapter
 ---@return boolean?
 function GitRev:is_head(adapter)
-  if self.type ~= RevType.COMMIT then
-    return false
-  end
+  if self.type ~= RevType.COMMIT then return false end
 
   local out, code = adapter:exec_sync({ "rev-parse", "HEAD", "--" }, adapter.ctx.toplevel)
 
-  if code ~= 0 or not (out[2] ~= nil or out[1] and out[1] ~= "") then
-    return
-  end
+  if code ~= 0 or not (out[2] ~= nil or out[1] and out[1] ~= "") then return end
 
   return self.commit == vim.trim(out[1]):gsub("^%^", "")
 end
@@ -132,13 +120,11 @@ end
 ---@return string
 function GitRev:object_name(abbrev_len)
   if self.type == RevType.COMMIT then
-    if abbrev_len then
-      return self.commit:sub(1, abbrev_len)
-    end
+    if abbrev_len then return self.commit:sub(1, abbrev_len) end
 
     return self.commit
   elseif self.type == RevType.STAGE then
-    return ":" ..  self.stage
+    return ":" .. self.stage
   end
 
   return "UNKNOWN"

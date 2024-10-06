@@ -58,15 +58,11 @@ function HelpPanel:init(parent, keymap_groups, opt)
   }
 
   self:on_autocmd("BufWinEnter", {
-    callback = function()
-      vim.bo[self.bufid].bufhidden = "wipe"
-    end,
+    callback = function() vim.bo[self.bufid].bufhidden = "wipe" end,
   })
 
   self:on_autocmd("WinLeave", {
-    callback = function()
-      self:close()
-    end,
+    callback = function() self:close() end,
   })
 
   parent.emitter:on("close", function(e)
@@ -86,9 +82,10 @@ function HelpPanel:apply_cmd()
     local last_winid = vim.fn.win_getid(vim.fn.winnr("#"))
 
     if mapping then
-      api.nvim_win_call(last_winid, function()
-        api.nvim_feedkeys(utils.t(mapping[2]), "m", false)
-      end)
+      api.nvim_win_call(
+        last_winid,
+        function() api.nvim_feedkeys(utils.t(mapping[2]), "m", false) end
+      )
 
       self:close()
     end
@@ -105,9 +102,7 @@ function HelpPanel:init_buffer()
     vim.keymap.set(mapping[1], mapping[2], mapping[3], map_opt)
   end
 
-  vim.keymap.set("n", "<cr>", function()
-    self:apply_cmd()
-  end, default_opt)
+  vim.keymap.set("n", "<cr>", function() self:apply_cmd() end, default_opt)
 end
 
 function HelpPanel:update_components()
@@ -158,7 +153,7 @@ function HelpPanel:update_components()
         {
           name = "section_heading",
           context = {
-            label = group:upper():gsub("_", "-")
+            label = group:upper():gsub("_", "-"),
           },
         },
         items,
@@ -212,7 +207,8 @@ function HelpPanel:render()
     -- Section heading
     comp = section.section_heading.comp
     comp:add_line()
-    s = string.rep(" ", math.floor(self.state.width * 0.5 - #comp.context.label * 0.5)) .. comp.context.label
+    s = string.rep(" ", math.floor(self.state.width * 0.5 - #comp.context.label * 0.5))
+      .. comp.context.label
     comp:add_line(s, "Statement")
     comp:add_line(("%14s    CALLBACK"):format("KEYS"), "DiffviewFilePanelCounter")
 

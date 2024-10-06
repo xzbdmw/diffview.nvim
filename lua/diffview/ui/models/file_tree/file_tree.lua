@@ -40,9 +40,7 @@ function FileTree:add_file_entry(file)
   for i = 1, #parts - 1 do
     local name = parts[i]
 
-    if i > 1 then
-      path = pl:join(path, parts[i])
-    end
+    if i > 1 then path = pl:join(path, parts[i]) end
 
     if not cur_node.children[name] then
       ---@type DirData
@@ -66,9 +64,7 @@ end
 ---@param b string
 ---@return string
 local function combine_statuses(a, b)
-  if a == " " or a == "?" or a == "!" or a == b then
-    return b
-  end
+  if a == " " or a == "?" or a == "!" or a == b then return b end
 
   return "M"
 end
@@ -76,9 +72,7 @@ end
 function FileTree:update_statuses()
   ---@return string the node's status
   local function recurse(node)
-    if not node:has_children() then
-      return node.data.status
-    end
+    if not node:has_children() then return node.data.status end
 
     local parent_status = " "
 

@@ -52,9 +52,7 @@ function LogEntry:update_status()
     end
   end
 
-  if missing_status < #self.files and not self.status then
-    self.status = "X"
-  end
+  if missing_status < #self.files and not self.status then self.status = "X" end
 end
 
 function LogEntry:update_stats()
@@ -70,9 +68,7 @@ function LogEntry:update_stats()
     end
   end
 
-  if missing_stats == #self.files then
-    self.stats = nil
-  end
+  if missing_stats == #self.files then self.stats = nil end
 end
 
 ---@param path string
@@ -81,9 +77,7 @@ function LogEntry:get_diff(path)
   if not self.commit.diff then return nil end
 
   for _, diff_entry in ipairs(self.commit.diff) do
-    if path == (diff_entry.path_new or diff_entry.path_old) then
-      return diff_entry
-    end
+    if path == (diff_entry.path_new or diff_entry.path_old) then return diff_entry end
   end
 end
 
@@ -93,12 +87,10 @@ end
 function LogEntry.new_null_entry(adapter, opt)
   opt = opt or {}
 
-  return LogEntry(
-    vim.tbl_extend("force", opt, {
-      nulled = true,
-      files = { FileEntry.new_null_entry(adapter) },
-    })
-  )
+  return LogEntry(vim.tbl_extend("force", opt, {
+    nulled = true,
+    files = { FileEntry.new_null_entry(adapter) },
+  }))
 end
 
 M.LogEntry = LogEntry

@@ -33,14 +33,10 @@ MultiJob.FAIL_COND = {
     local failed = {}
 
     for _, job in ipairs(mj.jobs) do
-      if job.code ~= 0 then
-        failed[#failed + 1] = job
-      end
+      if job.code ~= 0 then failed[#failed + 1] = job end
     end
 
-    if next(failed) then
-      return false, failed, "Job(s) exited with a non-zero exit code!"
-    end
+    if next(failed) then return false, failed, "Job(s) exited with a non-zero exit code!" end
 
     return true
   end,
@@ -50,16 +46,12 @@ MultiJob.FAIL_COND = {
     local failed = {}
 
     for _, job in ipairs(mj.jobs) do
-      if #job.stdout == 1 and job.stdout[1] == ""
-        or #job.stdout == 0
-      then
+      if #job.stdout == 1 and job.stdout[1] == "" or #job.stdout == 0 then
         failed[#failed + 1] = job
       end
     end
 
-    if next(failed) then
-      return false, failed, "Job(s) expected output, but returned nothing!"
-    end
+    if next(failed) then return false, failed, "Job(s) expected output, but returned nothing!" end
 
     return true
   end,
@@ -106,9 +98,7 @@ end
 MultiJob.start = async.wrap(function(self, callback)
   ---@diagnostic disable: invisible
   for _, job in ipairs(self.jobs) do
-    if job:is_running() then
-      error("A job is still running!")
-    end
+    if job:is_running() then error("A job is still running!") end
   end
 
   self:reset()
@@ -194,34 +184,22 @@ function MultiJob:is_success()
 end
 
 ---@param callback MultiJob.OnExitCallback
-function MultiJob:on_exit(callback)
-  table.insert(self.on_exit_listeners, callback)
-end
+function MultiJob:on_exit(callback) table.insert(self.on_exit_listeners, callback) end
 
 ---@param callback MultiJob.OnRetryCallback
-function MultiJob:on_retry(callback)
-  table.insert(self.on_retry_listeners, callback)
-end
+function MultiJob:on_retry(callback) table.insert(self.on_retry_listeners, callback) end
 
-function MultiJob:is_done()
-  return self._done
-end
+function MultiJob:is_done() return self._done end
 
-function MultiJob:is_started()
-  return self._started
-end
+function MultiJob:is_started() return self._started end
 
-function MultiJob:is_running()
-  return self:is_started() and not self:is_done()
-end
+function MultiJob:is_running() return self:is_started() and not self:is_done() end
 
 ---@return string[]
 function MultiJob:stdout()
   return utils.flatten(
     ---@param value diffview.Job
-    vim.tbl_map(function(value)
-      return value.stdout
-    end, self.jobs)
+    vim.tbl_map(function(value) return value.stdout end, self.jobs)
   )
 end
 
@@ -229,9 +207,7 @@ end
 function MultiJob:stderr()
   return utils.flatten(
     ---@param value diffview.Job
-    vim.tbl_map(function(value)
-      return value.stderr
-    end, self.jobs)
+    vim.tbl_map(function(value) return value.stderr end, self.jobs)
   )
 end
 

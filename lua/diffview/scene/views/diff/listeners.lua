@@ -15,20 +15,14 @@ return function(view)
   return {
     tab_enter = function()
       local file = view.panel.cur_file
-      if file then
-        view:set_file(file, false, true)
-      end
+      if file then view:set_file(file, false, true) end
 
-      if view.ready then
-        view:update_files()
-      end
+      if view.ready then view:update_files() end
     end,
     tab_leave = function()
       local file = view.panel.cur_file
 
-      if file then
-        file.layout:detach_files()
-      end
+      if file then file.layout:detach_files() end
 
       for _, f in view.panel.files:iter() do
         f.layout:restore_winopts()
@@ -37,9 +31,7 @@ return function(view)
     buf_write_post = function()
       if view.adapter:has_local(view.left, view.right) then
         view.update_needed = true
-        if api.nvim_get_current_tabpage() == view.tabpage then
-          view:update_files()
-        end
+        if api.nvim_get_current_tabpage() == view.tabpage then view:update_files() end
       end
     end,
     file_open_new = function(_, entry)
@@ -55,9 +47,7 @@ return function(view)
       view.cur_layout:sync_scroll()
     end,
     ---@diagnostic disable-next-line: unused-local
-    files_updated = function(_, files)
-      view.initialized = true
-    end,
+    files_updated = function(_, files) view.initialized = true end,
     close = function()
       if view.panel:is_focused() then
         view.panel:close()
@@ -65,18 +55,11 @@ return function(view)
         view:close()
       end
     end,
-    select_next_entry = function()
-      view:next_file(true)
-    end,
-    select_prev_entry = function()
-      view:prev_file(true)
-    end,
-    next_entry = function()
-      view.panel:highlight_next_file()
-    end,
-    prev_entry = function()
-      view.panel:highlight_prev_file()
-    end,
+    select_next_entry = function() view:next_file(true) end,
+    select_cur_file = function() view:cur_file(true) end,
+    select_prev_entry = function() view:prev_file(true) end,
+    next_entry = function() view.panel:highlight_next_file() end,
+    prev_entry = function() view.panel:highlight_prev_file() end,
     select_entry = function()
       if view.panel:is_open() then
         ---@type any
@@ -111,14 +94,10 @@ return function(view)
 
       local range = view.adapter.Rev.to_range(view.left, view.right)
 
-      if range then
-        view.commit_log_panel:update(range)
-      end
+      if range then view.commit_log_panel:update(range) end
     end,
     toggle_stage_entry = function()
-      if not (view.left.type == RevType.STAGE and view.right.type == RevType.LOCAL) then
-        return
-      end
+      if not (view.left.type == RevType.STAGE and view.right.type == RevType.LOCAL) then return end
 
       local item = view:infer_cur_file(true)
       if item then
@@ -169,18 +148,15 @@ return function(view)
           view:next_file()
         end
 
-        view:update_files(
-          vim.schedule_wrap(function()
-            view.panel:highlight_cur_file()
-          end)
-        )
+        view:update_files(vim.schedule_wrap(function() view.panel:highlight_cur_file() end))
         view.emitter:emit(EventName.FILES_STAGED, view)
       end
     end,
     stage_all = function()
-      local args = vim.tbl_map(function(file)
-        return file.path
-      end, utils.vec_join(view.files.working, view.files.conflicting))
+      local args = vim.tbl_map(
+        function(file) return file.path end,
+        utils.vec_join(view.files.working, view.files.conflicting)
+      )
 
       if #args > 0 then
         local success = view.adapter:add_files(args)
@@ -190,9 +166,7 @@ return function(view)
           return
         end
 
-        view:update_files(function()
-          view.panel:highlight_cur_file()
-        end)
+        view:update_files(function() view.panel:highlight_cur_file() end)
         view.emitter:emit(EventName.FILES_STAGED, view)
       end
     end,
@@ -215,9 +189,7 @@ return function(view)
 
       local commit
 
-      if view.left.type ~= RevType.STAGE then
-        commit = view.left.commit
-      end
+      if view.left.type ~= RevType.STAGE then commit = view.left.commit end
 
       local file = view:infer_cur_file()
       if not file then return end
@@ -248,15 +220,9 @@ return function(view)
       view.panel:render()
       view.panel:redraw()
     end,
-    focus_files = function()
-      view.panel:focus()
-    end,
-    toggle_files = function()
-      view.panel:toggle(true)
-    end,
-    refresh_files = function()
-      view:update_files()
-    end,
+    focus_files = function() view.panel:focus() end,
+    toggle_files = function() view.panel:toggle(true) end,
+    refresh_files = function() view:update_files() end,
     open_all_folds = function()
       if not view.panel:is_focused() or view.panel.listing_style ~= "tree" then return end
 

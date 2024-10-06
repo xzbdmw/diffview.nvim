@@ -122,9 +122,7 @@ local function try_close(...)
 
   for i = 1, select("#", ...) do
     local handle = args[i]
-    if handle and not handle:is_closing() then
-      handle:close()
-    end
+    if handle and not handle:is_closing() then handle:close() end
   end
 end
 
@@ -133,9 +131,7 @@ end
 local function process_chunks(chunks)
   local data = table.concat(chunks)
 
-  if data == "" then
-    return {}
-  end
+  if data == "" then return {} end
 
   local has_eof = data:sub(-1) == "\n"
   local ret = vim.split(data, "\r?\n")
@@ -150,9 +146,7 @@ end
 ---@param err? string
 ---@param data? string
 function Job:buffered_reader(pipe, out, err, data)
-  if err then
-    logger:error("[Job:buffered_reader()] " .. err)
-  end
+  if err then logger:error("[Job:buffered_reader()] " .. err) end
 
   if data then
     out[#out + 1] = data
@@ -170,10 +164,8 @@ function Job:line_reader(pipe, out, line_listeners)
 
   ---@param err? string
   ---@param data? string
-  return function (err, data)
-    if err then
-      logger:error("[Job:line_reader()] " .. err)
-    end
+  return function(err, data)
+    if err then logger:error("[Job:line_reader()] " .. err) end
 
     if data then
       local has_eol = data:sub(-1) == "\n"
@@ -186,7 +178,7 @@ function Job:line_reader(pipe, out, line_listeners)
         if not has_eol and i == #lines then
           line_buffer = line
         else
-          out[#out+1] = line
+          out[#out + 1] = line
 
           if line_listeners then
             for _, listener in ipairs(line_listeners) do
@@ -197,7 +189,7 @@ function Job:line_reader(pipe, out, line_listeners)
       end
     else
       if line_buffer then
-        out[#out+1] = line_buffer
+        out[#out + 1] = line_buffer
 
         if line_listeners then
           for _, listener in ipairs(line_listeners) do
@@ -234,13 +226,10 @@ function Job:handle_writer(pipe, data)
   if type(data) == "string" then
     if data:sub(-1) ~= "\n" then data = data .. "\n" end
     pipe:write(data, function(err)
-      if err then
-        logger:error("[Job:handle_writer()] " .. err)
-      end
+      if err then logger:error("[Job:handle_writer()] " .. err) end
 
       try_close(pipe)
     end)
-
   else
     ---@cast data string[]
     local c = #data
@@ -250,9 +239,7 @@ function Job:handle_writer(pipe, data)
         pipe:write(s .. "\n")
       else
         pipe:write(s .. "\n", function(err)
-          if err then
-            logger:error("[Job:handle_writer()] " .. err)
-          end
+          if err then logger:error("[Job:handle_writer()] " .. err) end
 
           try_close(pipe)
         end)
@@ -304,8 +291,7 @@ Job.start = async.wrap(function(self, callback)
     cwd = self.cwd,
     env = self.env,
     hide = true,
-  },
-  function(code, signal)
+  }, function(code, signal)
     ---@cast handle -?
     handle:close()
     self.p_out:read_stop()
@@ -338,9 +324,7 @@ Job.start = async.wrap(function(self, callback)
         end
       end
     else
-      if self._retry_count > 0 then
-        log:info("Retry was successful!")
-      end
+      if self._retry_count > 0 then log:info("Retry was successful!") end
 
       log:log_job(self, self.log_opt)
     end
@@ -366,9 +350,7 @@ Job.start = async.wrap(function(self, callback)
   self:handle_reader(self.p_out, self.stdout, "out")
   self:handle_reader(self.p_err, self.stderr, "err")
 
-  if self.p_in then
-    self:handle_writer(self.p_in, self.writer)
-  end
+  if self.p_in then self:handle_writer(self.p_in, self.writer) end
 end)
 
 ---@private
@@ -395,19 +377,13 @@ end)
 ---@return boolean success
 ---@return string? err
 function Job:sync(timeout)
-  if not self:is_started() then
-    self:start()
-  end
+  if not self:is_started() then self:start() end
 
   await(async.scheduler())
 
-  if self:is_done() then
-    return self:is_success()
-  end
+  if self:is_done() then return self:is_success() end
 
-  local ok, status = vim.wait(timeout or (30 * 1000), function()
-    return self:is_done()
-  end, 1)
+  local ok, status = vim.wait(timeout or (30 * 1000), function() return self:is_done() end, 1)
 
   await(async.scheduler())
 
@@ -466,9 +442,7 @@ end
 Job.join = async.wrap(function(jobs, callback)
   -- Start by ensuring all jobs are running
   for _, job in ipairs(jobs) do
-    if not job:is_started() then
-      job:start()
-    end
+    if not job:is_started() then job:start() end
   end
 
   local success, errors = true, {}
@@ -496,9 +470,7 @@ end)
 function Job:on_stdout(callback)
   table.insert(self.on_stdout_listeners, callback)
 
-  if not self:is_started() then
-    self.buffered_std = false
-  end
+  if not self:is_started() then self.buffered_std = false end
 end
 
 ---Subscribe to stderr data. Only used if `buffered_std=false`.
@@ -506,20 +478,14 @@ end
 function Job:on_stderr(callback)
   table.insert(self.on_stderr_listeners, callback)
 
-  if not self:is_running() then
-    self.buffered_std = false
-  end
+  if not self:is_running() then self.buffered_std = false end
 end
 
 ---@param callback diffview.Job.OnExitCallback
-function Job:on_exit(callback)
-  table.insert(self.on_exit_listeners, callback)
-end
+function Job:on_exit(callback) table.insert(self.on_exit_listeners, callback) end
 
 ---@param callback diffview.Job.OnRetryCallback
-function Job:on_retry(callback)
-  table.insert(self.on_retry_listeners, callback)
-end
+function Job:on_retry(callback) table.insert(self.on_retry_listeners, callback) end
 
 ---@return boolean success
 ---@return string? err
@@ -529,17 +495,11 @@ function Job:is_success()
   return true
 end
 
-function Job:is_done()
-  return self._done
-end
+function Job:is_done() return self._done end
 
-function Job:is_started()
-  return self._started
-end
+function Job:is_started() return self._started end
 
-function Job:is_running()
-  return self:is_started() and not self:is_done()
-end
+function Job:is_running() return self:is_started() and not self:is_done() end
 
 M.Job = Job
 

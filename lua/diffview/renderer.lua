@@ -70,9 +70,7 @@ local function create_subcomponents(parent, comp_struct, schema)
       comp = sub_comp,
     }
     comp_struct[v.name] = comp_struct[i]
-    if #v > 0 then
-      create_subcomponents(sub_comp, comp_struct[i], v)
-    end
+    if #v > 0 then create_subcomponents(sub_comp, comp_struct[i], v) end
   end
 end
 
@@ -108,9 +106,7 @@ function RenderComponent:create_component(schema)
   new_comp.data_root = self.data_root
   self:add_component(new_comp)
 
-  if comp_struct then
-    return comp_struct
-  end
+  if comp_struct then return comp_struct end
 
   return new_comp
 end
@@ -198,9 +194,7 @@ function RenderComponent:destroy()
   self.components = nil
 end
 
-function RenderComponent:isleaf()
-  return (not next(self.components))
-end
+function RenderComponent:isleaf() return (not next(self.components)) end
 
 ---@param line integer
 ---@return RenderComponent?
@@ -221,9 +215,7 @@ end
 ---@param callback fun(comp: RenderComponent, i: integer, parent: RenderComponent): boolean?
 function RenderComponent:some(callback)
   for i, child in ipairs(self.components) do
-    if callback(child, i, self) then
-      return
-    end
+    if callback(child, i, self) then return end
   end
 end
 
@@ -242,9 +234,7 @@ end
 function RenderComponent:leaves()
   local leaves = {}
   self:deep_some(function(comp)
-    if #comp.components == 0 then
-      leaves[#leaves + 1] = comp
-    end
+    if #comp.components == 0 then leaves[#leaves + 1] = comp end
     return false
   end)
 
@@ -314,9 +304,7 @@ function RenderData:create_component(schema)
 end
 
 ---@param component RenderComponent
-function RenderData:add_component(component)
-  self.components[#self.components + 1] = component
-end
+function RenderData:add_component(component) self.components[#self.components + 1] = component end
 
 ---@param component RenderComponent
 function RenderData:remove_component(component)
@@ -375,9 +363,7 @@ end
 ---@param components RenderComponent[]
 function M.create_cursor_constraint(components)
   local stack = utils.vec_slice(components, 1)
-  utils.merge_sort(stack, function(a, b)
-    return a.lstart <= b.lstart
-  end)
+  utils.merge_sort(stack, function(a, b) return a.lstart <= b.lstart end)
 
   ---Given a cursor delta or target: returns the next valid line index inside a
   ---contraining component. When the cursor is trying to move out of a
@@ -487,9 +473,7 @@ end
 ---@param bufid integer
 ---@param data RenderData
 function M.render(bufid, data)
-  if not api.nvim_buf_is_loaded(bufid) then
-    return
-  end
+  if not api.nvim_buf_is_loaded(bufid) then return end
 
   local last = vim.loop.hrtime()
   local was_modifiable = api.nvim_buf_get_option(bufid, "modifiable")

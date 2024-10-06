@@ -78,7 +78,7 @@ Panel.default_config_split = {
   position = "left",
   relative = "editor",
   win = 0,
-  win_opts = {}
+  win_opts = {},
 }
 
 ---@class PanelFloatSpec
@@ -104,7 +104,7 @@ Panel.default_config_float = {
   zindex = 50,
   style = "minimal",
   border = "single",
-  win_opts = {}
+  win_opts = {},
 }
 
 Panel.au = {
@@ -173,7 +173,7 @@ function Panel:get_config()
       relative = valid_enum(config.relative, { "editor", "win" }),
       width = { config.width, "number", true },
       height = { config.height, "number", true },
-      win_opts = { config.win_opts, "table" }
+      win_opts = { config.win_opts, "table" },
     })
   else
     ---@cast config PanelFloatSpec
@@ -195,17 +195,13 @@ function Panel:get_config()
         function(v)
           if v == nil then return true end
 
-          if type(v) == "table" then
-            return #v >= 2
-          end
+          if type(v) == "table" then return #v >= 2 end
 
           return vim.tbl_contains(border, v)
         end,
         ("%s or a list of length >=2"):format(
-          table.concat(vim.tbl_map(function(v)
-            return ([['%s']]):format(v)
-          end, border), "|")
-        )
+          table.concat(vim.tbl_map(function(v) return ([['%s']]):format(v) end, border), "|")
+        ),
       },
     })
   end
@@ -225,9 +221,7 @@ function Panel:is_open(tabpage)
   return valid
 end
 
-function Panel:is_focused()
-  return self:is_open() and api.nvim_get_current_win() == self.winid
-end
+function Panel:is_focused() return self:is_open() and api.nvim_get_current_win() == self.winid end
 
 ---@param no_open? boolean Don't open the panel if it's closed.
 function Panel:focus(no_open)
@@ -240,9 +234,7 @@ function Panel:focus(no_open)
 end
 
 function Panel:resize()
-  if not self:is_open(0) then
-    return
-  end
+  if not self:is_open(0) then return end
 
   local config = self:get_config()
 
@@ -259,21 +251,18 @@ function Panel:resize()
 end
 
 function Panel:open()
-  if not self:buf_loaded() then
-    self:init_buffer()
-  end
-  if self:is_open() then
-    return
-  end
+  if not self:buf_loaded() then self:init_buffer() end
+  if self:is_open() then return end
 
   local config = self:get_config()
 
   if config.type == "split" then
-    local split_dir = vim.tbl_contains({ "top", "left" }, config.position) and "aboveleft" or "belowright"
+    local split_dir = vim.tbl_contains({ "top", "left" }, config.position) and "aboveleft"
+      or "belowright"
     local split_cmd = self.state.form == "row" and "sp" or "vsp"
     local rel_winid = config.relative == "win"
-      and api.nvim_win_is_valid(config.win or -1)
-      and config.win
+        and api.nvim_win_is_valid(config.win or -1)
+        and config.win
       or 0
 
     api.nvim_win_call(rel_winid, function()
@@ -287,7 +276,6 @@ function Panel:open()
         vim.cmd("wincmd =")
       end
     end)
-
   elseif config.type == "float" then
     self.winid = vim.api.nvim_open_win(self.bufid, false, utils.sanitize_float_config(config))
     if self.winid == 0 then
@@ -321,9 +309,7 @@ end
 
 function Panel:destroy()
   self:close()
-  if self:buf_loaded() then
-    api.nvim_buf_delete(self.bufid, { force = true })
-  end
+  if self:buf_loaded() then api.nvim_buf_delete(self.bufid, { force = true }) end
 
   -- Disable autocmd listeners
   for _, cbs in pairs(self.au_event_map) do
@@ -345,9 +331,7 @@ function Panel:toggle(focus)
   end
 end
 
-function Panel:buf_loaded()
-  return self.bufid and api.nvim_buf_is_loaded(self.bufid)
-end
+function Panel:buf_loaded() return self.bufid and api.nvim_buf_is_loaded(self.bufid) end
 
 function Panel:init_buffer()
   local bn = api.nvim_create_buf(false, false)
@@ -372,13 +356,16 @@ function Panel:init_buffer()
   self.bufid = bn
   self.render_data = renderer.RenderData(bufname)
 
-  api.nvim_buf_call(self.bufid, function()
-    vim.api.nvim_exec_autocmds({ "BufNew", "BufFilePre" }, {
-      group = Panel.au.group,
-      buffer = self.bufid,
-      modeline = false,
-    })
-  end)
+  api.nvim_buf_call(
+    self.bufid,
+    function()
+      vim.api.nvim_exec_autocmds({ "BufNew", "BufFilePre" }, {
+        group = Panel.au.group,
+        buffer = self.bufid,
+        modeline = false,
+      })
+    end
+  )
 
   self:update_components()
   self:render()
@@ -392,9 +379,7 @@ function Panel:update_components() oop.abstract_stub() end
 function Panel:render() oop.abstract_stub() end
 
 function Panel:redraw()
-  if not self.render_data then
-    return
-  end
+  if not self.render_data then return end
   perf:reset()
   renderer.render(self.bufid, self.render_data)
   perf:time()
@@ -417,15 +402,14 @@ end
 ---@param event string|string[]
 ---@param opts PanelAutocmdSpec
 function Panel:on_autocmd(event, opts)
-  if type(event) ~= "table" then
-    event = { event }
-  end
+  if type(event) ~= "table" then event = { event } end
 
   local callback = function(_, state)
     local win_match, buf_match
     if state.event:match("^Win") then
-      if vim.tbl_contains({ "WinLeave", "WinEnter" }, state.event)
-          and api.nvim_get_current_win() == self.winid
+      if
+        vim.tbl_contains({ "WinLeave", "WinEnter" }, state.event)
+        and api.nvim_get_current_win() == self.winid
       then
         buf_match = state.buf
       else
@@ -435,24 +419,19 @@ function Panel:on_autocmd(event, opts)
       buf_match = state.buf
     end
 
-    if (win_match and win_match == self.winid)
-      or (buf_match and buf_match == self.bufid) then
-        opts.callback(state)
+    if (win_match and win_match == self.winid) or (buf_match and buf_match == self.bufid) then
+      opts.callback(state)
     end
   end
 
   for _, e in ipairs(event) do
-    if not self.au_event_map[e] then
-      self.au_event_map[e] = {}
-    end
+    if not self.au_event_map[e] then self.au_event_map[e] = {} end
     table.insert(self.au_event_map[e], callback)
 
     if not Panel.au.events[e] then
       Panel.au.events[e] = api.nvim_create_autocmd(e, {
         group = Panel.au.group,
-        callback = function(state)
-          Panel.au.emitter:emit(e, state)
-        end,
+        callback = function(state) Panel.au.emitter:emit(e, state) end,
       })
     end
 
@@ -492,16 +471,12 @@ end
 
 ---@return integer?
 function Panel:get_width()
-  if self:is_open() then
-    return api.nvim_win_get_width(self.winid)
-  end
+  if self:is_open() then return api.nvim_win_get_width(self.winid) end
 end
 
 ---@return integer?
 function Panel:get_height()
-  if self:is_open() then
-    return api.nvim_win_get_height(self.winid)
-  end
+  if self:is_open() then return api.nvim_win_get_height(self.winid) end
 end
 
 function Panel:infer_width()
@@ -523,9 +498,7 @@ function Panel:infer_width()
     end
   end
 
-  if self.state.form == "row" then
-    return vim.o.columns
-  end
+  if self.state.form == "row" then return vim.o.columns end
 
   return math.floor(vim.o.columns / 2)
 end
@@ -549,9 +522,7 @@ function Panel:infer_height()
     end
   end
 
-  if self.state.form == "row" then
-    return math.floor(vim.o.lines / 2)
-  end
+  if self.state.form == "row" then return math.floor(vim.o.lines / 2) end
 
   return vim.o.lines
 end

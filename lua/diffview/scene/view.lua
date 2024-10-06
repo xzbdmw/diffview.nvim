@@ -76,9 +76,7 @@ function View:close()
   if self.tabpage and api.nvim_tabpage_is_valid(self.tabpage) then
     DiffviewGlobal.emitter:emit("view_leave", self)
 
-    if #api.nvim_list_tabpages() == 1 then
-      vim.cmd("tabnew")
-    end
+    if #api.nvim_list_tabpages() == 1 then vim.cmd("tabnew") end
 
     local pagenr = api.nvim_tabpage_get_number(self.tabpage)
     vim.cmd("tabclose " .. pagenr)
@@ -87,19 +85,13 @@ function View:close()
   DiffviewGlobal.emitter:emit("view_closed", self)
 end
 
-function View:is_cur_tabpage()
-  return self.tabpage == api.nvim_get_current_tabpage()
-end
+function View:is_cur_tabpage() return self.tabpage == api.nvim_get_current_tabpage() end
 
 ---@return boolean
-local function prefer_horizontal()
-  return vim.tbl_contains(vim.opt.diffopt:get(), "vertical")
-end
+local function prefer_horizontal() return vim.tbl_contains(vim.opt.diffopt:get(), "vertical") end
 
 ---@return Diff1
-function View.get_default_diff1()
-  return Diff1.__get()
-end
+function View.get_default_diff1() return Diff1.__get() end
 
 ---@return Diff2
 function View.get_default_diff2()
@@ -120,22 +112,16 @@ function View.get_default_diff3()
 end
 
 ---@return Diff4
-function View.get_default_diff4()
-  return Diff4Mixed.__get()
-end
+function View.get_default_diff4() return Diff4Mixed.__get() end
 
 ---@return LayoutName|-1
-function View.get_default_layout_name()
-  return config.get_config().view.default.layout
-end
+function View.get_default_layout_name() return config.get_config().view.default.layout end
 
 ---@return Layout # (class) The default layout class.
 function View.get_default_layout()
   local name = View.get_default_layout_name()
 
-  if name == -1 then
-    return View.get_default_diff2()
-  end
+  if name == -1 then return View.get_default_diff2() end
 
   return config.name_to_layout(name --[[@as string ]])
 end
@@ -144,9 +130,7 @@ end
 function View.get_default_merge_layout()
   local name = config.get_config().view.merge_tool.layout
 
-  if name == -1 then
-    return View.get_default_diff3()
-  end
+  if name == -1 then return View.get_default_diff3() end
 
   return config.name_to_layout(name)
 end

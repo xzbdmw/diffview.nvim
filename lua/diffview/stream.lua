@@ -18,7 +18,7 @@ local M = {}
 local Stream = oop.create_class("Stream")
 M.Stream = Stream
 
-Stream.EOF = oop.Symbol("Stream.EOF");
+Stream.EOF = oop.Symbol("Stream.EOF")
 
 ---@alias Stream.SrcFunc fun(): (item: unknown, continue: boolean?)
 
@@ -51,9 +51,7 @@ end
 ---@return unknown? item
 ---@return integer? index
 function Stream:next()
-  if self.drained then
-    error("Attempted to consume a drained stream!")
-  end
+  if self.drained then error("Attempted to consume a drained stream!") end
 
   local idx = self.head
   local v, cont = self.src()
@@ -75,7 +73,9 @@ function Stream:skip(n)
     return
   end
 
-  for _ = 1, n do self:next() end
+  for _ = 1, n do
+    self:next()
+  end
 
   return self
 end
@@ -94,7 +94,9 @@ end
 ---@return unknown[]
 function Stream:collect()
   local ret = {}
-  for i, v in self:iter() do ret[i] = v end
+  for i, v in self:iter() do
+    ret[i] = v
+  end
   return ret
 end
 
@@ -107,9 +109,7 @@ function Stream:slice(first, last)
 
   return Stream(function()
     if self.head > last then return nil, false end
-    if first > self.head then
-      self:skip(first - self.head)
-    end
+    if first > self.head then self:skip(first - self.head) end
 
     return (self:next())
   end)
@@ -127,9 +127,7 @@ function Stream:map(f)
       v = self:next()
     end
 
-    if v == Stream.EOF then
-      return nil, false
-    end
+    if v == Stream.EOF then return nil, false end
 
     return v
   end)
@@ -139,9 +137,7 @@ end
 ---@return Stream
 function Stream:filter(f)
   return self:map(function(item)
-    if not f(item) then
-      return nil
-    end
+    if not f(item) then return nil end
 
     return item
   end)
@@ -154,7 +150,9 @@ end
 function Stream:reduce(f, init)
   local acc = init
   if not acc then acc = self:next() end
-  for _, v in self:iter() do acc = f(acc, v) end
+  for _, v in self:iter() do
+    acc = f(acc, v)
+  end
 
   return acc
 end
@@ -168,9 +166,7 @@ AsyncStream.next = async.sync_wrap(
   ---@param self AsyncStream
   ---@param callback function
   function(self, callback)
-    if self.drained then
-      error("Attempted to consume a drained stream!")
-    end
+    if self.drained then error("Attempted to consume a drained stream!") end
 
     local idx = self.head
     local v, cont = await(self.src())
@@ -190,9 +186,7 @@ AsyncStream.next = async.sync_wrap(
 AsyncStream.await = async.sync_wrap(
   ---@param self AsyncStream
   ---@param callback function
-  function(self, callback)
-    callback(self:collect())
-  end
+  function(self, callback) callback(self:collect()) end
 )
 
 ---@enum StreamState
@@ -258,7 +252,7 @@ function AsyncListStream:push(...)
           self:invoke_listeners("on_close")
           permit = await(self.sem:acquire()) --[[@as Permit ]]
 
-          self.data[#self.data+1] = args[i]
+          self.data[#self.data + 1] = args[i]
           self.flow_state = StreamState.CLOSED
 
           self:invoke_listeners("on_post_close")
@@ -266,7 +260,7 @@ function AsyncListStream:push(...)
           break
         end
       else
-        self.data[#self.data+1] = args[i]
+        self.data[#self.data + 1] = args[i]
       end
     end
   end
@@ -287,14 +281,10 @@ function AsyncListStream:close(...)
   self:push(Stream.EOF)
 end
 
-function AsyncListStream:is_closed()
-  return self.flow_state == StreamState.CLOSED
-end
+function AsyncListStream:is_closed() return self.flow_state == StreamState.CLOSED end
 
 ---@param callback function
-function AsyncListStream:on_close(callback)
-  table.insert(self.state.on_close.listeners, callback)
-end
+function AsyncListStream:on_close(callback) table.insert(self.state.on_close.listeners, callback) end
 
 ---@param callback function
 function AsyncListStream:on_post_close(callback)

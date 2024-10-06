@@ -96,9 +96,7 @@ function Layout:use_windows(...)
     local win = wins[i]
     win.parent = self
 
-    if utils.vec_indexof(self.windows, win) == -1 then
-      table.insert(self.windows, win)
-    end
+    if utils.vec_indexof(self.windows, win) == -1 then table.insert(self.windows, win) end
   end
 end
 
@@ -124,36 +122,28 @@ function Layout:find_pivot()
   if vim.is_callable(self.pivot_producer) then
     local ret = self.pivot_producer()
 
-    if ret then
-      return ret
-    end
+    if ret then return ret end
   end
 
   vim.cmd("1windo belowright vsp")
 
   local pivot = api.nvim_get_current_win()
 
-  if api.nvim_win_is_valid(last_win) then
-    api.nvim_set_current_win(last_win)
-  end
+  if api.nvim_win_is_valid(last_win) then api.nvim_set_current_win(last_win) end
 
   return pivot
 end
 
 ---@return vcs.File[]
 function Layout:files()
-  return utils.tbl_fmap(self.windows, function(v)
-    return v.file
-  end)
+  return utils.tbl_fmap(self.windows, function(v) return v.file end)
 end
 
 ---Check if the buffers for all the files in the layout are loaded.
 ---@return boolean
 function Layout:is_files_loaded()
   for _, f in ipairs(self:files()) do
-    if not f:is_valid() then
-      return false
-    end
+    if not f:is_valid() then return false end
   end
 
   return true
@@ -201,9 +191,7 @@ function Layout:recover(pivot)
   ---@cast pivot -?
 
   for _, win in ipairs(self.windows) do
-    if win.id ~= pivot then
-      pcall(api.nvim_win_close, win.id, true)
-    end
+    if win.id ~= pivot then pcall(api.nvim_win_close, win.id, true) end
   end
 
   self.windows = {}
@@ -215,17 +203,13 @@ end
 ---Check the validity of all composing layout windows.
 ---@return Layout.State
 function Layout:validate()
-  if not next(self.windows) then
-    return { valid = false }
-  end
+  if not next(self.windows) then return { valid = false } end
 
   local state = { valid = true }
 
   for _, win in ipairs(self.windows) do
     state[win] = win:is_valid()
-    if not state[win] then
-      state.valid = false
-    end
+    if not state[win] then state.valid = false end
   end
 
   return state
@@ -233,9 +217,7 @@ end
 
 ---Check the validity if the layout.
 ---@return boolean
-function Layout:is_valid()
-  return self:validate().valid
-end
+function Layout:is_valid() return self:validate().valid end
 
 ---@return boolean
 function Layout:is_nulled()
@@ -252,9 +234,7 @@ end
 function Layout:ensure()
   local state = self:validate()
 
-  if not state.valid then
-    self:recover()
-  end
+  if not state.valid then self:recover() end
 end
 
 ---Save window local options.
@@ -284,7 +264,9 @@ function Layout:sync_scroll()
 
   for _, win in ipairs(self.windows) do
     local lcount = api.nvim_buf_line_count(api.nvim_win_get_buf(win.id))
-    if lcount > max then target, max = win, lcount end
+    if lcount > max then
+      target, max = win, lcount
+    end
   end
 
   local main_win = self:get_main_win()
@@ -298,9 +280,7 @@ function Layout:sync_scroll()
         vim.cmd("norm! " .. api.nvim_replace_termcodes("<c-e><c-y>", true, true, true))
       end
 
-      if win.id ~= curwin then
-        api.nvim_exec_autocmds("WinLeave", { modeline = false })
-      end
+      if win.id ~= curwin then api.nvim_exec_autocmds("WinLeave", { modeline = false }) end
     end)
   end
 

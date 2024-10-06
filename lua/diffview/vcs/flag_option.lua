@@ -50,10 +50,13 @@ function FlagOption:init(keymap, flag_name, desc, opt)
   self.keymap = keymap
   self.flag_name = flag_name
   self.desc = desc
-  self.key = opt.key or utils.str_match(flag_name, {
-    "^%-%-?([^=]+)=?",
-    "^%+%+?([^=]+)=?",
-  }):gsub("%-", "_")
+  self.key = opt.key
+    or utils
+      .str_match(flag_name, {
+        "^%-%-?([^=]+)=?",
+        "^%+%+?([^=]+)=?",
+      })
+      :gsub("%-", "_")
   self.select = opt.select
   self.completion = opt.completion
   self.expect_list = utils.sate(opt.expect_list, false)
@@ -91,10 +94,12 @@ function FlagOption:transform(values)
 end
 
 function FlagOption:render_prompt()
-  return utils.str_template(self.prompt_fmt, {
-    label = self.prompt_label and self.prompt_label .. " " or "",
-    flag_name = self.flag_name .. " ",
-  }):sub(1, -2)
+  return utils
+    .str_template(self.prompt_fmt, {
+      label = self.prompt_label and self.prompt_label .. " " or "",
+      flag_name = self.flag_name .. " ",
+    })
+    :sub(1, -2)
 end
 
 ---Render a single option value
@@ -113,18 +118,15 @@ end
 ---@return string rendered_text
 function FlagOption:render_display(values)
   values = self:prepare_values(values)
-  if #values == 0 or (#values == 1 and values[1] == "") then
-    return true, self.flag_name
-  end
+  if #values == 0 or (#values == 1 and values[1] == "") then return true, self.flag_name end
 
-  local quoted = table.concat(vim.tbl_map(function(v)
-    return self:render_value(v)
-  end, values), " ")
+  local quoted = table.concat(vim.tbl_map(function(v) return self:render_value(v) end, values), " ")
 
-  return false, utils.str_template(self.display_fmt, {
-    flag_name = self.flag_name,
-    values = quoted,
-  })
+  return false,
+    utils.str_template(self.display_fmt, {
+      flag_name = self.flag_name,
+      values = quoted,
+    })
 end
 
 ---Render the default text for |input()|.
@@ -132,13 +134,9 @@ end
 function FlagOption:render_default(values)
   values = self:prepare_values(values)
 
-  local ret = vim.tbl_map(function(v)
-    return self:render_value(v)
-  end, values)
+  local ret = vim.tbl_map(function(v) return self:render_value(v) end, values)
 
-  if #ret > 0 then
-    ret[1] = ret[1]:match("^" .. vim.pesc(self.flag_name) .. "(.*)") or ret[1]
-  end
+  if #ret > 0 then ret[1] = ret[1]:match("^" .. vim.pesc(self.flag_name) .. "(.*)") or ret[1] end
 
   return table.concat(ret, " ")
 end

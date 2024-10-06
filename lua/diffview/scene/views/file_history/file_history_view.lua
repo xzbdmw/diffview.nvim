@@ -4,7 +4,8 @@ local oop = require("diffview.oop")
 
 local CommitLogPanel = lazy.access("diffview.ui.panels.commit_log_panel", "CommitLogPanel") ---@type CommitLogPanel|LazyModule
 local EventName = lazy.access("diffview.events", "EventName") ---@type EventName|LazyModule
-local FileHistoryPanel = lazy.access("diffview.scene.views.file_history.file_history_panel", "FileHistoryPanel") ---@type FileHistoryPanel|LazyModule
+local FileHistoryPanel =
+  lazy.access("diffview.scene.views.file_history.file_history_panel", "FileHistoryPanel") ---@type FileHistoryPanel|LazyModule
 local JobStatus = lazy.access("diffview.vcs.utils", "JobStatus") ---@type JobStatus|LazyModule
 local LogEntry = lazy.access("diffview.vcs.log_entry", "LogEntry") ---@type LogEntry|LazyModule
 local StandardView = lazy.access("diffview.scene.views.standard.standard_view", "StandardView") ---@type StandardView|LazyModule
@@ -53,9 +54,7 @@ function FileHistoryView:post_open()
     self.panel:update_entries(function(entries, status)
       if status < JobStatus.ERROR and not self.panel:cur_file() then
         local file = self.panel:next_file()
-        if file then
-          self:set_file(file)
-        end
+        if file then self:set_file(file) end
       end
     end)
 
@@ -78,9 +77,7 @@ function FileHistoryView:close()
 end
 
 ---@return FileEntry?
-function FileHistoryView:cur_file()
-  return self.panel.cur_item[2]
-end
+function FileHistoryView:cur_file() return self.panel.cur_item[2] end
 
 ---@private
 ---@param self FileHistoryView
@@ -177,13 +174,10 @@ FileHistoryView.set_file = async.void(function(self, file, focus)
     self.nulled = false
     await(self:_set_file(file))
 
-    if focus then
-      api.nvim_set_current_win(self.cur_layout:get_main_win().id)
-    end
+    if focus then api.nvim_set_current_win(self.cur_layout:get_main_win().id) end
   end
   ---@diagnostic enable: invisible
 end)
-
 
 ---Ensures there are files to load, and loads the null buffer otherwise.
 ---@return boolean
@@ -191,9 +185,7 @@ function FileHistoryView:file_safeguard()
   if self.panel:num_items() == 0 then
     local cur = self.panel.cur_item[2]
 
-    if cur then
-      cur.layout:detach_files()
-    end
+    if cur then cur.layout:detach_files() end
 
     self.cur_layout:open_null()
     self.nulled = true
@@ -204,9 +196,7 @@ function FileHistoryView:file_safeguard()
   return false
 end
 
-function FileHistoryView:on_files_staged(callback)
-  self.emitter:on(EventName.FILES_STAGED, callback)
-end
+function FileHistoryView:on_files_staged(callback) self.emitter:on(EventName.FILES_STAGED, callback) end
 
 function FileHistoryView:init_event_listeners()
   local listeners = require("diffview.scene.views.file_history.listeners")(self)
@@ -237,9 +227,7 @@ end
 
 ---Check whether or not the instantiation was successful.
 ---@return boolean
-function FileHistoryView:is_valid()
-  return self.valid
-end
+function FileHistoryView:is_valid() return self.valid end
 
 ---@override
 function FileHistoryView.get_default_layout_name()
@@ -251,9 +239,7 @@ end
 function FileHistoryView.get_default_layout()
   local name = FileHistoryView.get_default_layout_name()
 
-  if name == -1 then
-    return FileHistoryView.get_default_diff2()
-  end
+  if name == -1 then return FileHistoryView.get_default_diff2() end
 
   return config.name_to_layout(name --[[@as string ]])
 end

@@ -16,9 +16,7 @@ local Diff3Hor = oop.create_class("Diff3Hor", Diff3)
 
 Diff3Hor.name = "diff3_horizontal"
 
-function Diff3Hor:init(opt)
-  self:super(opt)
-end
+function Diff3Hor:init(opt) self:super(opt) end
 
 ---@override
 ---@param self Diff3Hor
@@ -31,9 +29,7 @@ Diff3Hor.create = async.void(function(self, pivot)
   assert(api.nvim_win_is_valid(pivot), "Layout creation requires a valid window pivot!")
 
   for _, win in ipairs(self.windows) do
-    if win.id ~= pivot then
-      win:close(true)
-    end
+    if win.id ~= pivot then win:close(true) end
   end
 
   api.nvim_win_call(pivot, function()

@@ -14,14 +14,13 @@ local M = {}
 local path_sep = package.config:sub(1, 1)
 
 ---@type PathLib
-M.path = lazy.require("diffview.path", function(module)
-  return module.PathLib({ separator = "/" })
-end)
+M.path = lazy.require(
+  "diffview.path",
+  function(module) return module.PathLib({ separator = "/" }) end
+)
 
 ---@return number # Current time (ms)
-function M.now()
-  return vim.loop.hrtime() / 1000000
-end
+function M.now() return vim.loop.hrtime() / 1000000 end
 
 ---@param msg string|string[]
 ---@param schedule? boolean Schedule the echo call.
@@ -31,37 +30,25 @@ function M.notify(msg, level, schedule)
     vim.schedule(function() M.notify(msg, level, false) end)
     return
   end
-  if type(msg) == "table" then
-    msg = table.concat(msg, "\n")
-  end
-  if msg == "" then
-    return
-  end
+  if type(msg) == "table" then msg = table.concat(msg, "\n") end
+  if msg == "" then return end
 
-  if level == vim.log.levels.ERROR then
-    logger:error(msg)
-  end
+  if level == vim.log.levels.ERROR then logger:error(msg) end
 
   vim.notify(msg, level, { title = "diffview.nvim" })
 end
 
 ---@param msg string|string[]
 ---@param schedule? boolean Schedule the echo call.
-function M.info(msg, schedule)
-  M.notify(msg, vim.log.levels.INFO, schedule)
-end
+function M.info(msg, schedule) M.notify(msg, vim.log.levels.INFO, schedule) end
 
 ---@param msg string|string[]
 ---@param schedule? boolean Schedule the echo call.
-function M.warn(msg, schedule)
-  M.notify(msg, vim.log.levels.WARN, schedule)
-end
+function M.warn(msg, schedule) M.notify(msg, vim.log.levels.WARN, schedule) end
 
 ---@param msg string|string[]
 ---@param schedule? boolean Schedule the echo call.
-function M.err(msg, schedule)
-  M.notify(msg, vim.log.levels.ERROR, schedule)
-end
+function M.err(msg, schedule) M.notify(msg, vim.log.levels.ERROR, schedule) end
 
 ---Call the function `f`, ignoring most of the window and buffer related
 ---events. The function is called in protected mode.
@@ -88,9 +75,7 @@ function M.update_win(winid)
       api.nvim_set_current_win(winid)
       api.nvim_set_current_win(cur_winid)
     end)
-    if not ok then
-      error(err)
-    end
+    if not ok then error(err) end
   end
 end
 
@@ -102,9 +87,7 @@ end
 function M.pick(index, ...)
   local args = { ... }
 
-  if index < 0 then
-    index = #args + index + 1
-  end
+  if index < 0 then index = #args + index + 1 end
 
   return args[index]
 end
@@ -116,9 +99,7 @@ function M.sate(...)
   local args = { ... }
 
   for i = 1, select("#", ...) do
-    if args[i] ~= nil then
-      return args[i]
-    end
+    if args[i] ~= nil then return args[i] end
   end
 end
 
@@ -128,21 +109,15 @@ end
 ---@param max number
 ---@return number
 function M.clamp(value, min, max)
-  if value < min then
-    return min
-  end
-  if value > max then
-    return max
-  end
+  if value < min then return min end
+  if value > max then return max end
   return value
 end
 
 ---Get the sign of a given number.
 ---@param n number
 ---@return -1|0|1
-function M.sign(n)
-  return (n > 0 and 1 or 0) - (n < 0 and 1 or 0)
-end
+function M.sign(n) return (n > 0 and 1 or 0) - (n < 0 and 1 or 0) end
 
 ---Replace termcodes.
 ---@param s string
@@ -156,12 +131,8 @@ end
 ---@param fill string? (default: `" "`)
 function M.str_right_pad(s, min_size, fill)
   s = tostring(s)
-  if #s >= min_size then
-    return s
-  end
-  if not fill then
-    fill = " "
-  end
+  if #s >= min_size then return s end
+  if not fill then fill = " " end
   return s .. string.rep(fill, math.ceil((min_size - #s) / #fill))
 end
 
@@ -170,12 +141,8 @@ end
 ---@param fill string? (default: `" "`)
 function M.str_left_pad(s, min_size, fill)
   s = tostring(s)
-  if #s >= min_size then
-    return s
-  end
-  if not fill then
-    fill = " "
-  end
+  if #s >= min_size then return s end
+  if not fill then fill = " " end
   return string.rep(fill, math.ceil((min_size - #s) / #fill)) .. s
 end
 
@@ -184,12 +151,8 @@ end
 ---@param fill string? (default: ` `)
 function M.str_center_pad(s, min_size, fill)
   s = tostring(s)
-  if #s >= min_size then
-    return s
-  end
-  if not fill then
-    fill = " "
-  end
+  if #s >= min_size then return s end
+  if not fill then fill = " " end
   local left_len = math.floor((min_size - #s) / #fill / 2)
   local right_len = math.ceil((min_size - #s) / #fill / 2)
   return string.rep(fill, left_len) .. s .. string.rep(fill, right_len)
@@ -203,9 +166,7 @@ end
 ---@return string
 function M.str_trunc(s, max_length, head)
   if string.len(s) > max_length then
-    if head then
-      return "…" .. s:sub(string.len(s) - max_length + 1, string.len(s))
-    end
+    if head then return "…" .. s:sub(string.len(s) - max_length + 1, string.len(s)) end
     return s:sub(1, max_length - 1) .. "…"
   end
   return s
@@ -234,9 +195,7 @@ end
 ---@param str string Template string
 ---@param table table Key-value pairs to replace in the string
 function M.str_template(str, table)
-  return (str:gsub("($%b{})", function(w)
-    return table[w:sub(3, -2)] or w
-  end))
+  return (str:gsub("($%b{})", function(w) return table[w:sub(3, -2)] or w end))
 end
 
 ---Match a given string against multiple patterns.
@@ -246,9 +205,7 @@ end
 function M.str_match(str, patterns)
   for _, pattern in ipairs(patterns) do
     local m = { str:match(pattern) }
-    if #m > 0 then
-      return unpack(m)
-    end
+    if #m > 0 then return unpack(m) end
   end
 end
 
@@ -268,9 +225,7 @@ function M.str_quote(s, opt)
     only_if_whitespace = false,
   }) --[[@as utils.str_quote.Opt ]]
 
-  if opt.only_if_whitespace and not s:find("%s") then
-    return s
-  end
+  if opt.only_if_whitespace and not s:find("%s") then return s end
 
   local primary, secondary = [["]], [[']]
   if opt.prefer_single then
@@ -355,9 +310,7 @@ local list_like_options = {
 ---@param option_map WindowOptions
 ---@param opt? utils.set_local.Opt
 function M.set_local(winids, option_map, opt)
-  if type(winids) ~= "table" then
-    winids = { winids }
-  end
+  if type(winids) ~= "table" then winids = { winids } end
 
   opt = vim.tbl_extend("keep", opt or {}, { method = "set" }) --[[@as table ]]
 
@@ -374,14 +327,11 @@ function M.set_local(winids, option_map, opt)
             o = vim.tbl_extend("force", opt, value.opt) --[[@as table ]]
           end
 
-          if is_list_like then
-            value = table.concat(value, ",")
-          end
+          if is_list_like then value = table.concat(value, ",") end
         end
 
         if o.method == "set" then
           vim.opt_local[option] = value
-
         else
           if o.method == "remove" then
             if is_list_like then
@@ -389,7 +339,6 @@ function M.set_local(winids, option_map, opt)
             else
               vim.opt_local[fullname]:remove(value)
             end
-
           elseif o.method == "append" then
             if is_list_like then
               vim.opt_local[fullname] = ("%s%s"):format(
@@ -399,7 +348,6 @@ function M.set_local(winids, option_map, opt)
             else
               vim.opt_local[fullname]:append(value)
             end
-
           elseif o.method == "prepend" then
             if is_list_like then
               vim.opt_local[fullname] = ("%s%s%s"):format(
@@ -420,14 +368,10 @@ end
 ---@param winids number[]|number Either a list of winids, or a single winid (0 for current window).
 ---@param option string
 function M.unset_local(winids, option)
-  if type(winids) ~= "table" then
-    winids = { winids }
-  end
+  if type(winids) ~= "table" then winids = { winids } end
 
   for _, id in ipairs(winids) do
-    api.nvim_win_call(id, function()
-      vim.opt_local[option] = nil
-    end)
+    api.nvim_win_call(id, function() vim.opt_local[option] = nil end)
   end
 end
 
@@ -435,16 +379,15 @@ end
 ---@param tabid integer
 ---@return integer[]
 function M.tabpage_list_normal_wins(tabid)
-  return vim.tbl_filter(function(v)
-    return api.nvim_win_get_config(v).relative == ""
-  end, api.nvim_tabpage_list_wins(tabid))
+  return vim.tbl_filter(
+    function(v) return api.nvim_win_get_config(v).relative == "" end,
+    api.nvim_tabpage_list_wins(tabid)
+  )
 end
 
 function M.tabnr_to_id(tabnr)
   for _, id in ipairs(api.nvim_list_tabpages()) do
-    if api.nvim_tabpage_get_number(id) == tabnr then
-      return id
-    end
+    if api.nvim_tabpage_get_number(id) == tabnr then return id end
   end
 end
 
@@ -483,18 +426,14 @@ end
 ---@generic T
 ---@param ... T
 ---@return { n: integer, [integer]: T }
-function M.tbl_pack(...)
-  return { n = select("#", ...), ... }
-end
+function M.tbl_pack(...) return { n = select("#", ...), ... } end
 
 ---@generic T
 ---@param t { n?: integer, [integer]: T }
 ---@param i? integer
 ---@param j? integer
 ---@return T ...
-function M.tbl_unpack(t, i, j)
-  return unpack(t, i or 1, j or t.n or table.maxn(t))
-end
+function M.tbl_unpack(t, i, j) return unpack(t, i or 1, j or t.n or table.maxn(t)) end
 
 function M.tbl_clear(t)
   for k, _ in pairs(t) do
@@ -507,17 +446,14 @@ end
 ---@param table_path string|any[] Either a `.` separated string of table keys, or a list.
 ---@return any?
 function M.tbl_access(t, table_path)
-  local keys = type(table_path) == "table"
-      and table_path
-      or vim.split(table_path --[[@as string ]], ".", { plain = true })
+  local keys = type(table_path) == "table" and table_path
+    or vim.split(table_path --[[@as string ]], ".", { plain = true })
 
   local cur = t
 
   for _, k in ipairs(keys) do
     cur = cur[k]
-    if not cur then
-      return nil
-    end
+    if not cur then return nil end
   end
 
   return cur
@@ -535,9 +471,7 @@ function M.tbl_deep_union_extend(t, ...)
     local sub = M.vec_union(ours, theirs)
 
     for k, v in pairs(ours) do
-      if type(k) ~= "number" then
-        sub[k] = v
-      end
+      if type(k) ~= "number" then sub[k] = v end
     end
 
     for k, v in pairs(theirs) do
@@ -563,7 +497,7 @@ end
 function M.tbl_merge(t, ...)
   local ret = M.tbl_clone(t)
 
-  for _, theirs in ipairs({...}) do
+  for _, theirs in ipairs({ ... }) do
     for k, v in pairs(theirs) do
       if type(k) == "number" and k % 1 == 0 then
         ret[#ret + 1] = v
@@ -627,18 +561,15 @@ end
 ---@param value T
 ---@return T
 function M.tbl_set(t, table_path, value)
-  local keys = type(table_path) == "table"
-      and table_path
-      or vim.split(table_path --[[@as string ]], ".", { plain = true })
+  local keys = type(table_path) == "table" and table_path
+    or vim.split(table_path --[[@as string ]], ".", { plain = true })
 
   local cur = t
 
   for i = 1, #keys - 1 do
     local k = keys[i]
 
-    if not cur[k] then
-      cur[k] = {}
-    end
+    if not cur[k] then cur[k] = {} end
 
     cur = cur[k]
   end
@@ -653,9 +584,8 @@ end
 ---@param table_path string|any[] Either a `.` separated string of table keys, or a list.
 ---@return table
 function M.tbl_ensure(t, table_path)
-  local keys = type(table_path) == "table"
-      and table_path
-      or vim.split(table_path --[[@as string ]], ".", { plain = true })
+  local keys = type(table_path) == "table" and table_path
+    or vim.split(table_path --[[@as string ]], ".", { plain = true })
 
   local ret = M.tbl_access(t, keys)
   if not ret then
@@ -675,13 +605,9 @@ end
 function M.vec_slice(t, first, last)
   local slice = {}
 
-  if first and first < 0 then
-    first = #t + first + 1
-  end
+  if first and first < 0 then first = #t + first + 1 end
 
-  if last and last < 0 then
-    last = #t + last + 1
-  end
+  if last and last < 0 then last = #t + last + 1 end
 
   for i = first or 1, last or #t do
     slice[#slice + 1] = t[i]
@@ -696,9 +622,7 @@ end
 ---@param first integer First index, inclusive
 ---@param last? integer Last index, inclusive
 ---@return any ...
-function M.vec_select(t, first, last)
-  return unpack(M.vec_slice(t, first, last))
-end
+function M.vec_select(t, first, last) return unpack(M.vec_slice(t, first, last)) end
 
 ---Join multiple vectors into one.
 ---@param ... any
@@ -730,7 +654,7 @@ end
 ---@return vector
 function M.vec_union(...)
   local result = {}
-  local args = {...}
+  local args = { ... }
   local seen = {}
 
   for i = 1, select("#", ...) do
@@ -756,13 +680,13 @@ end
 ---@param ... vector
 ---@return vector
 function M.vec_diff(...)
-  local args = {...}
+  local args = { ... }
   local seen = {}
 
   for i = 1, select("#", ...) do
     if type(args[i]) ~= "nil" then
       if type(args[i]) ~= "table" then
-        if i == 1  then
+        if i == 1 then
           seen[args[i]] = true
         elseif seen[args[i]] then
           seen[args[i]] = nil
@@ -787,7 +711,7 @@ end
 ---@return vector
 function M.vec_symdiff(...)
   local result = {}
-  local args = {...}
+  local args = { ... }
   local seen = {}
 
   for i = 1, select("#", ...) do
@@ -803,9 +727,7 @@ function M.vec_symdiff(...)
   end
 
   for v, state in pairs(seen) do
-    if state == 1 then
-      result[#result+1] = v
-    end
+    if state == 1 then result[#result + 1] = v end
   end
 
   return result
@@ -818,9 +740,7 @@ end
 ---@return integer
 function M.vec_indexof(t, v)
   for i, vt in ipairs(t) do
-    if vt == v then
-      return i
-    end
+    if vt == v then return i end
   end
   return -1
 end
@@ -831,7 +751,7 @@ end
 ---@param ... any
 ---@return vector t
 function M.vec_push(t, ...)
-  local args = {...}
+  local args = { ... }
 
   for i = 1, select("#", ...) do
     t[#t + 1] = args[i]
@@ -878,9 +798,7 @@ function M.buf_search(bufnr, pattern, opt)
   local ret = {}
 
   api.nvim_buf_call(bufnr, function()
-    local flags = ("n%s"):format(
-      opt.reverse and "b" or ""
-    )
+    local flags = ("n%s"):format(opt.reverse and "b" or "")
     local pos = vim.fn.searchpos(pattern, flags)
 
     if not (pos[1] == 0 and pos[2] == 0) then
@@ -891,9 +809,7 @@ function M.buf_search(bufnr, pattern, opt)
         pos = { pos[1], pos[2], 0 },
       })
 
-      if not ok or vim.tbl_isempty(count) then
-        return
-      end
+      if not ok or vim.tbl_isempty(count) then return end
 
       ret.count = count
 
@@ -931,9 +847,7 @@ function M.list_bufs(opt)
     bufs = {}
     for _, winid in ipairs(wins) do
       bufnr = api.nvim_win_get_buf(winid)
-      if not seen[bufnr] then
-        bufs[#bufs+1] = bufnr
-      end
+      if not seen[bufnr] then bufs[#bufs + 1] = bufnr end
       seen[bufnr] = true
     end
   else
@@ -941,12 +855,8 @@ function M.list_bufs(opt)
   end
 
   return vim.tbl_filter(function(v)
-    if opt.loaded and not api.nvim_buf_is_loaded(v) then
-      return false
-    end
-    if opt.listed and not vim.bo[v].buflisted then
-      return false
-    end
+    if opt.loaded and not api.nvim_buf_is_loaded(v) then return false end
+    if opt.listed and not vim.bo[v].buflisted then return false end
     return true
   end, bufs) --[[@as integer[] ]]
 end
@@ -955,9 +865,7 @@ end
 ---@param opt? ListBufsSpec
 function M.find_named_buffer(name, opt)
   for _, v in ipairs(M.list_bufs(opt)) do
-    if vim.fn.bufname(v) == name then
-      return v
-    end
+    if vim.fn.bufname(v) == name then return v end
   end
   return nil
 end
@@ -969,15 +877,11 @@ function M.wipe_named_buffer(name, opt)
   if bn then
     local win_ids = vim.fn.win_findbuf(bn)
     for _, id in ipairs(win_ids) do
-      if vim.fn.win_gettype(id) ~= "autocmd" then
-        api.nvim_win_close(id, true)
-      end
+      if vim.fn.win_gettype(id) ~= "autocmd" then api.nvim_win_close(id, true) end
     end
 
     api.nvim_buf_set_name(bn, "")
-    vim.schedule(function()
-      pcall(api.nvim_buf_delete, bn, {})
-    end)
+    vim.schedule(function() pcall(api.nvim_buf_delete, bn, {}) end)
   end
 end
 
@@ -990,9 +894,7 @@ function M.remove_buffer(force, bn)
   bn = bn or api.nvim_get_current_buf()
   if not force then
     local modified = vim.bo[bn].modified
-    if modified then
-      return false, "No write since last change!"
-    end
+    if modified then return false, "No write since last change!" end
   end
 
   local win_ids = vim.fn.win_findbuf(bn)
@@ -1015,9 +917,7 @@ function M.remove_buffer(force, bn)
     end
   end
 
-  if api.nvim_buf_is_valid(bn) then
-    api.nvim_buf_delete(bn, { force = true })
-  end
+  if api.nvim_buf_is_valid(bn) then api.nvim_buf_delete(bn, { force = true }) end
 
   return true
 end
@@ -1027,9 +927,7 @@ end
 function M.find_file_buffer(path, opt)
   local p = M.path:absolute(path)
   for _, id in ipairs(M.list_bufs(opt)) do
-    if p == vim.api.nvim_buf_get_name(id) then
-      return id
-    end
+    if p == vim.api.nvim_buf_get_name(id) then return id end
   end
 end
 
@@ -1048,9 +946,7 @@ function M.win_find_buf(bufid, tabpage)
   end
 
   for _, id in ipairs(wins) do
-    if api.nvim_win_get_buf(id) == bufid then
-      result[#result + 1] = id
-    end
+    if api.nvim_win_get_buf(id) == bufid then result[#result + 1] = id end
   end
 
   return result
@@ -1097,7 +993,7 @@ function M.set_cursor(winid, line, column)
 
   pcall(api.nvim_win_set_cursor, winid, {
     M.clamp(line or 1, 1, api.nvim_buf_line_count(bufnr)),
-    math.max(0, column or 0)
+    math.max(0, column or 0),
   })
 end
 
@@ -1157,9 +1053,7 @@ function M.input_char(prompt, opt)
     prompt_hl = nil,
   }) --[[@as InputCharSpec ]]
 
-  if prompt then
-    vim.api.nvim_echo({ { prompt, opt.prompt_hl } }, false, {})
-  end
+  if prompt then vim.api.nvim_echo({ { prompt, opt.prompt_hl } }, false, {}) end
 
   local c
   if not opt.allow_non_ascii then
@@ -1170,9 +1064,7 @@ function M.input_char(prompt, opt)
     c = vim.fn.getchar()
   end
 
-  if opt.clear_prompt then
-    M.clear_prompt()
-  end
+  if opt.clear_prompt then M.clear_prompt() end
 
   local s = type(c) == "number" and vim.fn.nr2char(c) or nil
   ---@type string
@@ -1205,9 +1097,7 @@ function M.input(prompt, opt)
   M.clear_prompt()
 end
 
-function M.raw_key(vim_key)
-  return api.nvim_eval(string.format([["\%s"]], vim_key))
-end
+function M.raw_key(vim_key) return api.nvim_eval(string.format([["\%s"]], vim_key)) end
 
 function M.pause(msg)
   vim.cmd("redraw")
@@ -1262,9 +1152,7 @@ end
 function M.hard_bind(func, ...)
   local bound_args = M.tbl_pack(...)
 
-  return function()
-    return func(M.tbl_unpack(bound_args))
-  end
+  return function() return func(M.tbl_unpack(bound_args)) end
 end
 
 local function merge(t, first, mid, last, comparator)
@@ -1301,9 +1189,7 @@ local function merge(t, first, mid, last, comparator)
 end
 
 local function split_merge(t, first, last, comparator)
-  if (last - first) < 1 then
-    return
-  end
+  if (last - first) < 1 then return end
 
   local mid = math.floor((first + last) / 2)
 
@@ -1334,7 +1220,7 @@ function M.flatten(t)
     local n = #_t
     for i = 1, n do
       local v = _t[i]
-      if type(v) == 'table' then
+      if type(v) == "table" then
         recurse(v)
       elseif v then
         table.insert(result, v)
@@ -1353,7 +1239,9 @@ M.path_sep = path_sep
 --- @return table t
 function M.add_reverse_lookup(t)
   local keys = vim.tbl_keys(t)
-  for _, k in ipairs(keys) do t[t[k]] = k end
+  for _, k in ipairs(keys) do
+    t[t[k]] = k
+  end
   return t
 end
 

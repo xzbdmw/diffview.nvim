@@ -13,9 +13,7 @@ local M = {}
 local is_windows = uv.os_uname().version:match("Windows")
 
 local function handle_uv_err(x, err, err_msg)
-  if not x then
-    error(err .. " " .. err_msg, 2)
-  end
+  if not x then error(err .. " " .. err_msg, 2) end
 
   return x
 end
@@ -48,25 +46,19 @@ function PathLib:init(o)
 end
 
 ---@private
-function PathLib:_cwd()
-  return self.cwd or self:convert(uv.cwd())
-end
+function PathLib:_cwd() return self.cwd or self:convert(uv.cwd()) end
 
 ---@private
 ---@return ...
 function PathLib:_clean(...)
   local argc = select("#", ...)
 
-  if argc == 1 and select(1, ...) ~= nil then
-    return self:convert(...)
-  end
+  if argc == 1 and select(1, ...) ~= nil then return self:convert(...) end
 
   local paths = { ... }
 
   for i = 1, argc do
-    if paths[i] ~= nil then
-      paths[i] = self:convert(paths[i])
-    end
+    if paths[i] ~= nil then paths[i] = self:convert(paths[i]) end
   end
 
   return unpack(paths, 1, argc)
@@ -83,16 +75,12 @@ end
 ---Check if a given path is a URI.
 ---@param path string
 ---@return boolean
-function PathLib:is_uri(path)
-  return string.match(path, "^%w+://") ~= nil
-end
+function PathLib:is_uri(path) return string.match(path, "^%w+://") ~= nil end
 
 ---Get the URI scheme of a given URI.
 ---@param path string
 ---@return string
-function PathLib:get_uri_scheme(path)
-  return string.match(path, "^(%w+://)")
-end
+function PathLib:get_uri_scheme(path) return string.match(path, "^(%w+://)") end
 
 ---Change the path separators in a path. Removes duplicate separators.
 ---@param path string
@@ -126,9 +114,7 @@ end
 ---Convert a path to use the appropriate path separators for the current OS.
 ---@param path string
 ---@return string
-function PathLib:to_os(path)
-  return self:convert(path, self._is_windows and "\\" or "/")
-end
+function PathLib:to_os(path) return self:convert(path, self._is_windows and "\\" or "/") end
 
 ---Check if a given path is absolute.
 ---@param path string
@@ -157,13 +143,9 @@ function PathLib:absolute(path, cwd)
   path = self:expand(path)
   cwd = cwd or self:_cwd()
 
-  if self:is_uri(path) then
-    return path
-  end
+  if self:is_uri(path) then return path end
 
-  if self:is_abs(path) then
-    return self:normalize(path, { cwd = cwd, absolute = true })
-  end
+  if self:is_abs(path) then return self:normalize(path, { cwd = cwd, absolute = true }) end
 
   return self:normalize(self:join(cwd, path), { cwd = cwd, absolute = true })
 end
@@ -219,18 +201,14 @@ end
 function PathLib:normalize(path, opt)
   path = self:_clean(path)
 
-  if self:is_uri(path) then
-    return path
-  end
+  if self:is_uri(path) then return path end
 
   opt = opt or {}
   local cwd = opt.cwd and self:_clean(opt.cwd) or self:_cwd()
   local absolute = vim.F.if_nil(opt.absolute, false)
 
   local root = self:root(path)
-  if root and self:is_root(path) then
-    return path
-  end
+  if root and self:is_root(path) then return path end
 
   if not self:is_abs(path) then
     local relpath = self:relative(path, cwd, true)
@@ -257,9 +235,7 @@ function PathLib:normalize(path, opt)
         table.remove(parts, i)
         i = i - 1
       elseif parts[i] == ".." then
-        if i == 1 then
-          upc = upc + 1
-        end
+        if i == 1 then upc = upc + 1 end
         table.remove(parts, i)
         if i > 1 then
           table.remove(parts, i - 1)
@@ -273,9 +249,7 @@ function PathLib:normalize(path, opt)
     until i > #parts
 
     normal = self:join(root, unpack(parts))
-    if not absolute and upc == 0 then
-      normal = self:relative(normal, cwd, true)
-    end
+    if not absolute and upc == 0 then normal = self:relative(normal, cwd, true) end
   end
 
   return normal == "" and "." or normal
@@ -295,9 +269,7 @@ function PathLib:expand(path)
 
   for i = idx, #segments do
     local env_var = segments[i]:match("^%$(%S+)$")
-    if env_var then
-      segments[i] = uv.os_getenv(env_var) or env_var
-    end
+    if env_var then segments[i] = uv.os_getenv(env_var) or env_var end
   end
 
   return self:join(unpack(segments))
@@ -309,18 +281,14 @@ end
 function PathLib:join(...)
   local segments = { ... }
 
-  if type(segments[1]) == "table" then
-    segments = segments[1]
-  end
+  if type(segments[1]) == "table" then segments = segments[1] end
 
   local ret = ""
 
   for i = 1, table.maxn(segments) do
     local cur = segments[i]
     if cur and cur ~= "" then
-      if #ret > 0 and not ret:sub(-1, -1):match("[\\/]") then
-        ret = ret .. self.sep
-      end
+      if #ret > 0 and not ret:sub(-1, -1):match("[\\/]") then ret = ret .. self.sep end
       ret = ret .. cur
     end
   end
@@ -349,13 +317,11 @@ function PathLib:explode(path)
   if root ~= "" then
     parts[i] = root
 
-    if path:sub(1, 1) == self.sep then
-      path = path:sub(2)
-    end
+    if path:sub(1, 1) == self.sep then path = path:sub(2) end
   end
 
   for part in path:gmatch(string.format("([^%s]+)%s?", self.sep, self.sep)) do
-    parts[#parts+1] = part
+    parts[#parts + 1] = part
   end
 
   return parts
@@ -369,9 +335,7 @@ function PathLib:add_trailing(path)
   root, path = self:_split_root(path)
 
   if #path == 0 then return root .. path end
-  if path:sub(-1) == self.sep then
-    return root .. path
-  end
+  if path:sub(-1) == self.sep then return root .. path end
 
   return root .. path .. self.sep
 end
@@ -394,9 +358,7 @@ function PathLib:basename(path)
   path = self:remove_trailing(self:_clean(path))
   local i = path:match("^.*()" .. self.sep)
 
-  if not i then
-    return path
-  end
+  if not i then return path end
 
   return path:sub(i + 1, #path)
 end
@@ -416,9 +378,7 @@ end
 ---@param n? integer Nth parent. (default: 1)
 ---@return string?
 function PathLib:parent(path, n)
-  if type(n) ~= "number" or n < 1 then
-    n = 1
-  end
+  if type(n) ~= "number" or n < 1 then n = 1 end
 
   local parts = self:explode(path)
   local root = self:root(path)
@@ -467,9 +427,7 @@ function PathLib:truncate(path, max_length)
   if #path > max_length - 1 then
     path = path:sub(#path - max_length + 1, #path)
     local i = path:match("()" .. self.sep)
-    if not i then
-      return "…" .. path
-    end
+    if not i then return "…" .. path end
     return "…" .. path:sub(i, -1)
   else
     return path
@@ -481,9 +439,7 @@ end
 function PathLib:realpath(path)
   local p = uv.fs_realpath(path)
 
-  if p then
-    return self:convert(p)
-  end
+  if p then return self:convert(p) end
 end
 
 ---@param path string
@@ -491,9 +447,7 @@ end
 function PathLib:readlink(path)
   local p = uv.fs_readlink(path)
 
-  if p then
-    return self:convert(p)
-  end
+  if p then return self:convert(p) end
 end
 
 ---@param path string
@@ -503,9 +457,7 @@ end
 ---@overload fun(self: PathLib, path: string, nosuf: boolean, list: true): string[]
 function PathLib:vim_expand(path, nosuf, list)
   if list then
-    return vim.tbl_map(function(v)
-      return self:convert(v)
-    end, vim.fn.expand(path, nosuf, list))
+    return vim.tbl_map(function(v) return self:convert(v) end, vim.fn.expand(path, nosuf, list))
   end
 
   return self:convert(vim.fn.expand(path, nosuf, list) --[[@as string ]])
@@ -513,15 +465,11 @@ end
 
 ---@param path string
 ---@return string
-function PathLib:vim_fnamemodify(path, mods)
-  return self:convert(vim.fn.fnamemodify(path, mods))
-end
+function PathLib:vim_fnamemodify(path, mods) return self:convert(vim.fn.fnamemodify(path, mods)) end
 
 ---@param path string
 ---@return table?
-function PathLib:stat(path)
-  return uv.fs_stat(path)
-end
+function PathLib:stat(path) return uv.fs_stat(path) end
 
 ---@param path string
 ---@return string?
@@ -530,17 +478,13 @@ function PathLib:type(path)
 
   if p then
     local stat = uv.fs_stat(p)
-    if stat then
-      return stat.type
-    end
+    if stat then return stat.type end
   end
 end
 
 ---@param path string
 ---@return boolean
-function PathLib:is_dir(path)
-  return self:type(path) == "directory"
-end
+function PathLib:is_dir(path) return self:type(path) == "directory" end
 
 ---Check for read access to a given path.
 ---@param path string
@@ -548,9 +492,7 @@ end
 function PathLib:readable(path)
   local p = uv.fs_realpath(path)
 
-  if p then
-    return not not uv.fs_access(p, "R")
-  end
+  if p then return not not uv.fs_access(p, "R") end
 
   return false
 end
@@ -579,9 +521,7 @@ PathLib.touch = async.void(function(self, path, opt)
   if opt.parents then
     local parent = self:parent(path)
 
-    if parent then
-      await(self:mkdir(self:parent(path), { parents = true }))
-    end
+    if parent then await(self:mkdir(self:parent(path), { parents = true })) end
   end
 
   local fd = handle_uv_err(uv.fs_open(path, "w", mode))
@@ -629,32 +569,27 @@ end)
 PathLib.unlink = async.wrap(function(self, path, callback)
   ---@cast callback -?
   uv.fs_unlink(path, function(err, ok)
-    if not ok then
-      error(err)
-    end
+    if not ok then error(err) end
     callback()
   end)
 end)
 
 function PathLib:chain(...)
   local t = {
-    __result = utils.tbl_pack(...)
+    __result = utils.tbl_pack(...),
   }
 
   return setmetatable(t, {
     __index = function(chain, k)
       if k == "get" then
-        return function(_)
-          return utils.tbl_unpack(t.__result)
-        end
-
+        return function(_) return utils.tbl_unpack(t.__result) end
       else
         return function(_, ...)
           t.__result = utils.tbl_pack(self[k](self, utils.tbl_unpack(t.__result), ...))
           return chain
         end
       end
-    end
+    end,
   })
 end
 

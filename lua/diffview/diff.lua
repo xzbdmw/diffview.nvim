@@ -11,9 +11,9 @@ local M = {}
 
 ---@enum EditToken
 local EditToken = oop.enum({
-  NOOP    = 1,
-  DELETE  = 2,
-  INSERT  = 3,
+  NOOP = 1,
+  DELETE = 2,
+  INSERT = 3,
   REPLACE = 4,
 })
 
@@ -39,9 +39,7 @@ function Diff:init(a, b, eql_fn)
   self.modb = {}
   self.up = {}
   self.down = {}
-  self.eql_fn = eql_fn or function(aa, bb)
-    return aa == bb
-  end
+  self.eql_fn = eql_fn or function(aa, bb) return aa == bb end
 
   for i = 1, #a do
     self.moda[i] = false

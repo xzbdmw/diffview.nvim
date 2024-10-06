@@ -1,12 +1,11 @@
 local lazy = require("diffview.lazy")
-local oop = require('diffview.oop')
+local oop = require("diffview.oop")
 
 local Commit = lazy.access("diffview.vcs.commit", "Commit") ---@type Commit|LazyModule
 local RevType = lazy.access("diffview.vcs.rev", "RevType") ---@type RevType|LazyModule
 local utils = lazy.require("diffview.utils") ---@module "diffview.utils"
 
 local M = {}
-
 
 ---@class GitCommit : Commit
 ---@field reflog_selector? string
@@ -40,9 +39,7 @@ function GitCommit.from_rev_arg(rev_arg, adapter)
     "--",
   }, adapter.ctx.toplevel)
 
-  if code ~= 0 then
-    return
-  end
+  if code ~= 0 then return end
 
   local right_hash, _, _ = unpack(utils.str_split(out[1]))
   local time, time_offset = unpack(utils.str_split(out[3]))
@@ -70,9 +67,7 @@ function GitCommit.parse_time_offset(iso_date)
   local sign, h, m = vim.trim(iso_date):match("([+-])(%d%d):?(%d%d)$")
   local offset = tonumber(h) * 60 * 60 + tonumber(m) * 60
 
-  if sign == "-" then
-    offset = -offset
-  end
+  if sign == "-" then offset = -offset end
 
   return offset
 end

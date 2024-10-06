@@ -162,10 +162,7 @@ end
 function Logger.dstring(object)
   local tp = type(object)
 
-  if tp == "thread"
-    or tp == "function"
-    or tp == "userdata"
-  then
+  if tp == "thread" or tp == "function" or tp == "userdata" then
     return fmt("<%s %p>", tp, object)
   elseif tp == "number" then
     return tostring(to_precision(object, 3))
@@ -227,16 +224,18 @@ function Logger:_log(level_name, lazy_eval, x, ...)
   )
 
   if lazy_eval then
-    self:queue_msg(function()
-      return fmt(
-        "[%-6s%s] %s: %s%s\n",
-        level_name:upper(),
-        date,
-        lineinfo,
-        ctx.label and fmt("[%s] ", ctx.label) or "",
-        table.concat(dvalues(x()), " ")
-      )
-    end)
+    self:queue_msg(
+      function()
+        return fmt(
+          "[%-6s%s] %s: %s%s\n",
+          level_name:upper(),
+          date,
+          lineinfo,
+          ctx.label and fmt("[%s] ", ctx.label) or "",
+          table.concat(dvalues(x()), " ")
+        )
+      end
+    )
   else
     self:queue_msg(
       fmt(
@@ -263,9 +262,7 @@ Logger.queue_msg = async.void(function(self, msg)
   elseif self.outfile_status == Logger.OutfileStatus.UNKNOWN then
     local ok, err = pawait(pl.touch, pl, self.outfile, { parents = true })
 
-    if not ok then
-      error("Failed to prepare log file! Details:\n" .. err)
-    end
+    if not ok then error("Failed to prepare log file! Details:\n" .. err) end
 
     self.outfile_status = Logger.OutfileStatus.READY
   end
@@ -293,9 +290,7 @@ Logger.flush = async.void(function(self)
 
     -- Eval lazy messages
     for i = 1, #self.msg_buffer do
-      if type(self.msg_buffer[i]) == "function" then
-        self.msg_buffer[i] = self.msg_buffer[i]()
-      end
+      if type(self.msg_buffer[i]) == "function" then self.msg_buffer[i] = self.msg_buffer[i]() end
     end
 
     local fd, err = uv.fs_open(self.outfile, "a", tonumber("0644", 8))
@@ -311,25 +306,21 @@ end)
 ---@param min_level integer
 ---@return Logger
 function Logger:lvl(min_level)
-  if DiffviewGlobal.debug_level >= min_level then
-    return self
-  end
+  if DiffviewGlobal.debug_level >= min_level then return self end
 
   return Logger.mock --[[@as Logger ]]
 end
 
 ---@param ctx Logger.Context
-function Logger:set_context(ctx)
-  self.ctx = ctx
-end
+function Logger:set_context(ctx) self.ctx = ctx end
 
-function Logger:clear_context()
-  self.ctx = nil
-end
+function Logger:clear_context() self.ctx = nil end
 
 do
   -- Create methods
-  for level, name in ipairs(Logger.LogLevels --[[@as string[] ]]) do
+  for level, name in
+    ipairs(Logger.LogLevels --[[@as string[] ]])
+  do
     ---@param self Logger
     Logger[name] = function(self, ...)
       if self.level < level then return end
@@ -367,9 +358,7 @@ function Logger:log_job(job, opt)
   opt = opt or {}
 
   if opt.silent then return end
-  if opt.debug_level and DiffviewGlobal.debug_level < opt.debug_level then
-    return
-  end
+  if opt.debug_level and DiffviewGlobal.debug_level < opt.debug_level then return end
 
   self:set_context({
     debuginfo = opt.debuginfo or debug.getinfo(2, "Sl"),
@@ -393,9 +382,7 @@ function Logger:log_job(job, opt)
   log_func(self, fmt("[job-info] Exit code: %s", job.code))
   log_func(self, fmt("     [cmd] %s %s", job.command, table.concat(args, " ")))
 
-  if job.cwd then
-    log_func(self, fmt("     [cwd] %s", job.cwd))
-  end
+  if job.cwd then log_func(self, fmt("     [cwd] %s", job.cwd)) end
   if not opt.no_stdout and job.stdout[1] then
     log_func(self, "  [stdout] " .. table.concat(job.stdout, "\n"))
   end

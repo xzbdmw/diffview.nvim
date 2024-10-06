@@ -39,8 +39,7 @@ function CDiffView:init(opt)
 
   if err then
     utils.err(
-      ("Failed to create an adapter for the repository: %s")
-      :format(utils.str_quote(opt.git_root))
+      ("Failed to create an adapter for the repository: %s"):format(utils.str_quote(opt.git_root))
     )
     return
   end
@@ -50,9 +49,7 @@ function CDiffView:init(opt)
   -- Fix malformed revs
   for _, v in ipairs({ "left", "right" }) do
     local rev = opt[v]
-    if not rev or not rev.type then
-      opt[v] = Rev(RevType.STAGE, 0)
-    end
+    if not rev or not rev.type then opt[v] = Rev(RevType.STAGE, 0) end
   end
 
   self.fetch_files = opt.update_files
@@ -79,9 +76,7 @@ function CDiffView:init(opt)
     self.files:update_file_trees()
 
     if self.panel.cur_file then
-      vim.schedule(function()
-        self:set_file(self.panel.cur_file, false, true)
-      end)
+      vim.schedule(function() self:set_file(self.panel.cur_file, false, true) end)
     end
   end
 
@@ -136,39 +131,43 @@ function CDiffView:create_file_entries(files)
 
     for _, file_data in ipairs(v.files) do
       if v.kind == "conflicting" then
-        table.insert(entries[v.kind], FileEntry.with_layout(CDiffView.get_default_merge_layout(), {
-          adapter = self.adapter,
-          path = file_data.path,
-          oldpath = file_data.oldpath,
-          status = "U",
-          kind = "conflicting",
-          revs = {
-            a = Rev(RevType.STAGE, 2),
-            b = Rev(RevType.LOCAL),
-            c = Rev(RevType.STAGE, 3),
-            d = Rev(RevType.STAGE, 1),
-          },
-        }))
+        table.insert(
+          entries[v.kind],
+          FileEntry.with_layout(CDiffView.get_default_merge_layout(), {
+            adapter = self.adapter,
+            path = file_data.path,
+            oldpath = file_data.oldpath,
+            status = "U",
+            kind = "conflicting",
+            revs = {
+              a = Rev(RevType.STAGE, 2),
+              b = Rev(RevType.LOCAL),
+              c = Rev(RevType.STAGE, 3),
+              d = Rev(RevType.STAGE, 1),
+            },
+          })
+        )
       else
-        table.insert(entries[v.kind], FileEntry.with_layout(CDiffView.get_default_layout(), {
-          adapter = self.adapter,
-          path = file_data.path,
-          oldpath = file_data.oldpath,
-          status = file_data.status,
-          stats = file_data.stats,
-          kind = v.kind,
-          revs = {
-            a = v.left,
-            b = v.right,
-          },
-          get_data = self.get_file_data,
-          --FIXME: left_null, right_null
-        }))
+        table.insert(
+          entries[v.kind],
+          FileEntry.with_layout(CDiffView.get_default_layout(), {
+            adapter = self.adapter,
+            path = file_data.path,
+            oldpath = file_data.oldpath,
+            status = file_data.status,
+            stats = file_data.stats,
+            kind = v.kind,
+            revs = {
+              a = v.left,
+              b = v.right,
+            },
+            get_data = self.get_file_data,
+            --FIXME: left_null, right_null
+          })
+        )
       end
 
-      if file_data.selected then
-        self.panel:set_cur_file(entries[v.kind][#entries[v.kind]])
-      end
+      if file_data.selected then self.panel:set_cur_file(entries[v.kind][#entries[v.kind]]) end
     end
   end
 

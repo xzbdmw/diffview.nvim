@@ -60,19 +60,15 @@ function CommitLogPanel:init(adapter, opt)
   self.adapter = adapter
   self.args = opt.args or { "-n256" }
 
-  self:on_autocmd("BufWinEnter" , {
-    callback = function()
-      vim.bo[self.bufid].bufhidden = "wipe"
-    end,
+  self:on_autocmd("BufWinEnter", {
+    callback = function() vim.bo[self.bufid].bufhidden = "wipe" end,
   })
 end
 
 ---@param self CommitLogPanel
 ---@param args string|string[]
 CommitLogPanel.update = async.void(function(self, args)
-  if type(args) ~= "table" then
-    args = { args }
-  end
+  if type(args) ~= "table" then args = { args } end
 
   local job = Job({
     command = self.adapter:bin(),
@@ -106,15 +102,12 @@ CommitLogPanel.update = async.void(function(self, args)
   vim.cmd("norm! gg")
 end)
 
-function CommitLogPanel:update_components()
-end
+function CommitLogPanel:update_components() end
 
 function CommitLogPanel:render()
   self.render_data:clear()
 
-  if self.job_out then
-    self.render_data.lines = utils.vec_slice(self.job_out)
-  end
+  if self.job_out then self.render_data.lines = utils.vec_slice(self.job_out) end
 end
 
 M.CommitLogPanel = CommitLogPanel

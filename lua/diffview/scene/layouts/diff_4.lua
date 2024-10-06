@@ -75,14 +75,10 @@ Diff4.use_entry = async.void(function(self, entry)
   self:set_file_c(layout.c.file)
   self:set_file_d(layout.d.file)
 
-  if self:is_valid() then
-    await(self:open_files())
-  end
+  if self:is_valid() then await(self:open_files()) end
 end)
 
-function Diff4:get_main_win()
-  return self.b
-end
+function Diff4:get_main_win() return self.b end
 
 ---@param layout Diff1
 ---@return Diff1
@@ -108,9 +104,7 @@ end
 ---@param rev Rev
 ---@param status string Git status symbol.
 ---@param sym Diff4.WindowSymbol
-function Diff4.should_null(rev, status, sym)
-  return false
-end
+function Diff4.should_null(rev, status, sym) return false end
 
 M.Diff4 = Diff4
 return M

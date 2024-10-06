@@ -1,5 +1,5 @@
-local GitAdapter = require('diffview.vcs.adapters.git').GitAdapter
-local HgAdapter = require('diffview.vcs.adapters.hg').HgAdapter
+local GitAdapter = require("diffview.vcs.adapters.git").GitAdapter
+local HgAdapter = require("diffview.vcs.adapters.hg").HgAdapter
 
 local M = {}
 
@@ -17,9 +17,7 @@ local M = {}
 function M.get_adapter(opt)
   local adapter_kinds = { GitAdapter, HgAdapter }
 
-  if not opt.cmd_ctx then
-    opt.cmd_ctx = {}
-  end
+  if not opt.cmd_ctx then opt.cmd_ctx = {} end
 
   for _, kind in ipairs(adapter_kinds) do
     local path_args
