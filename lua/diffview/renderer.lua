@@ -212,6 +212,23 @@ function RenderComponent:get_comp_on_line(line)
   return ret
 end
 
+function RenderComponent:get_comp_on_fname()
+  local ret
+  local fname_line
+  local i = 1
+  self:deep_some(function(child)
+    for row, line in ipairs(child.lines) do
+      i = i + 1
+      if string.find(line, vim.g.diffview_fname, nil, true) then
+        fname_line = i
+        return true
+      end
+    end
+    return false
+  end)
+  return self:get_comp_on_line(fname_line - 1)
+end
+
 ---@param callback fun(comp: RenderComponent, i: integer, parent: RenderComponent): boolean?
 function RenderComponent:some(callback)
   for i, child in ipairs(self.components) do

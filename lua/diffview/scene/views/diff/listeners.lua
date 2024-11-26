@@ -73,6 +73,17 @@ return function(view)
         end
       end
     end,
+    select_fname = function(fname)
+      local item = view.panel:get_item_at_fname()
+      view:set_file(item, false)
+      --   if type(item.collapsed) == "boolean" then
+      --     view.panel:toggle_item_fold(item)
+      --   else
+      --     view:set_file(item, false)
+      --   end
+      -- end
+      -- end
+    end,
     focus_entry = function()
       if view.panel:is_open() then
         ---@type any

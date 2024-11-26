@@ -255,6 +255,18 @@ function FilePanel:get_item_at_cursor()
   end
 end
 
+---Get the file entry under the cursor.
+---@return (FileEntry|DirData)?
+function FilePanel:get_item_at_fname()
+  local comp = self.components.comp:get_comp_on_fname()
+  return comp.context
+  -- if comp and comp.name == "file" then
+  --   return comp.context
+  -- elseif comp and comp.name == "dir_name" then
+  --   return comp.parent.context
+  -- end
+end
+
 ---Get the parent directory data of the item under the cursor.
 ---@return DirData?
 ---@return RenderComponent?

@@ -629,6 +629,7 @@ local action_names = {
   "refresh_files",
   "restore_entry",
   "select_entry",
+  "select_fname",
   "select_next_entry",
   "select_cur_file",
   "select_prev_entry",
