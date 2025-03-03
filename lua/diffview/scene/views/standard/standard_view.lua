@@ -100,15 +100,17 @@ function StandardView:use_layout(layout)
 
   self.cur_layout.pivot_producer = function()
     local was_open = self.panel:is_open()
-    local was_only_win = was_open and #utils.tabpage_list_normal_wins(self.tabpage) == 1
     self.panel:close()
 
-    -- If the panel was the only window before closing, then a temp window was
-    -- already created by `Panel:close()`.
-    if not was_only_win then vim.cmd("1windo aboveleft vsp") end
+    -- Create a scratch buffer
+    local scratch_buf = api.nvim_create_buf(false, true) -- false: not listed, true: scratch
 
+    -- Open a new vertical split and set the scratch buffer
+    vim.cmd("aboveleft vsp")
     local pivot = api.nvim_get_current_win()
+    api.nvim_win_set_buf(pivot, scratch_buf)
 
+    -- Restore panel state if it was open
     if was_open then self.panel:open() end
 
     return pivot
