@@ -225,6 +225,12 @@ function Panel:is_focused() return self:is_open() and api.nvim_get_current_win()
 
 ---@param no_open? boolean Don't open the panel if it's closed.
 function Panel:focus(no_open)
+  if vim.api.nvim_get_current_tabpage() == 1 then
+    vim.api.nvim_exec_autocmds("User", { pattern = "TabLeaveUser" })
+    FeedKeys("<c-f>", "m")
+    vim.notify("TabLeaveUser", vim.log.levels.INFO)
+    return
+  end
   if self:is_open() then
     api.nvim_set_current_win(self.winid)
   elseif not no_open then

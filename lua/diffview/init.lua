@@ -49,6 +49,12 @@ function M.init()
     pattern = "*",
     callback = function(_) M.emit("tab_leave") end,
   })
+  -- Also allow clearing on a user-triggered TabLeave event.
+  au("User", {
+    group = M.augroup,
+    pattern = "TabLeaveUser",
+    callback = function(_) M.emit("tab_leave") end,
+  })
   au("TabClosed", {
     group = M.augroup,
     pattern = "*",
